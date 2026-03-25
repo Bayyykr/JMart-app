@@ -1,0 +1,118 @@
+import React, { useState, useEffect } from 'react';
+import { ShoppingBag, MapPin, Clock, CheckCircle, XCircle, Truck, PackageCheck } from 'lucide-react';
+import api from '../../services/api';
+
+const MerchantOrders = () => {
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchOrders = async () => {
+        try {
+            const response = await api.get('/merchant/orders');
+            setOrders(response.data);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching merchant orders:', error);
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchOrders();
+    }, []);
+
+    const updateStatus = async (orderId, newStatus) => {
+        try {
+            await api.put(`/merchant/orders/${orderId}/status`, { status: newStatus });
+            // Optimistic update
+            setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+        } catch (error) {
+            console.error('Error updating order:', error);
+            alert("Gagal mengupdate pesanan");
+        }
+    };
+
+    return (
+        <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead className="bg-gray-50/50">
+                        <tr>
+                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">ID Pesanan</th>
+                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Pelanggan</th>
+                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Total</th>
+                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Status</th>
+                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                        {loading ? (
+                            <tr>
+                                <td colSpan="5" className="px-6 py-12 text-center text-gray-500">
+                                    Memuat pesanan...
+                                </td>
+                            </tr>
+                        ) : orders.length > 0 ? (
+                            orders.map((order) => (
+                                <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <span className="text-xs font-black text-brand-dark-blue">{order.id}</span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <p className="text-sm font-bold text-brand-dark-blue">{order.customer_name || 'Pembeli'}</p>
+                                        <p className="text-[10px] text-gray-400 font-bold">Tipe: COD / Delivery</p>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <p className="text-sm font-black text-brand-green">Rp {order.total.toLocaleString('id-ID')}</p>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                                            order.status === 'Selesai' ? 'bg-green-100 text-green-700' : 
+                                            order.status === 'Dalam Perjalanan' ? 'bg-blue-100 text-blue-700' :
+                                            order.status === 'Dibatalkan' ? 'bg-red-100 text-red-700' :
+                                            'bg-orange-100 text-orange-700'
+                                        }`}>
+                                            {order.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-2">
+                                            {order.status === 'Diproses' && (
+                                                <>
+                                                    <button onClick={() => updateStatus(order.id, 'Dalam Perjalanan')} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-all" title="ACC & Proses Pengiriman">
+                                                        <Truck size={18} />
+                                                    </button>
+                                                    <button onClick={() => updateStatus(order.id, 'Dibatalkan')} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Tolak Pesanan">
+                                                        <XCircle size={18} />
+                                                    </button>
+                                                </>
+                                            )}
+                                            {order.status === 'Dalam Perjalanan' && (
+                                                <button onClick={() => updateStatus(order.id, 'Selesai')} className="p-2 text-green-500 hover:bg-green-50 rounded-lg transition-all flex items-center gap-2 group border border-transparent hover:border-green-200" title="Pesanan Selesai">
+                                                    <PackageCheck size={18} />
+                                                    <span className="text-xs font-bold hidden group-hover:block transition-all">SELESAI</span>
+                                                </button>
+                                            )}
+                                            {(order.status === 'Selesai' || order.status === 'Dibatalkan') && (
+                                                <span className="text-xs text-gray-400 italic">No Action</span>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="5" className="p-12 text-center">
+                                    <ShoppingBag className="mx-auto text-gray-200 mb-4" size={48} />
+                                    <p className="text-sm font-bold text-gray-400">Belum ada pesanan masuk.</p>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+export default MerchantOrders;

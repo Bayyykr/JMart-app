@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "room_id": "driver-mock-36",
+    "sender_id": "5",
+    "sender_name": null,
+    "sender_image": null,
+    "receiver_id": "mock",
+    "receiver_name": null,
+    "receiver_image": null,
+    "content": "Halo Kak Vina Pandu, saya ingin booking antar jemput! 🛵\n\n📍 *Lokasi Jemput:* hai\n🏁 *Lokasi Tujuan:* jdakj\n📅 *Tanggal:* 2026-03-18\n🕐 *Waktu:* 10:59\n📝 *Catatan:* f\n\nMohon konfirmasi ketersediaan dan harganya ya. Terima kasih! 🙏",
+    "createdAt": "2026-03-24T00:59:15.000Z"
+  },
+  {
+    "id": 2,
+    "room_id": "driver-mock-36",
+    "sender_id": "5",
+    "sender_name": null,
+    "sender_image": null,
+    "receiver_id": "mock-36",
+    "receiver_name": null,
+    "receiver_image": null,
+    "content": "Halo Kak Vina Pandu, saya ingin booking antar jemput! 🛵\n\n📍 *Lokasi Jemput:* hao\n🏁 *Lokasi Tujuan:* hao\n📅 *Tanggal:* 2026-04-02\n🕐 *Waktu:* 08:06\n📝 *Catatan:* ss\n\nMohon konfirmasi ketersediaan dan harganya ya. Terima kasih! 🙏",
+    "createdAt": "2026-03-24T01:02:00.000Z"
+  }
+]

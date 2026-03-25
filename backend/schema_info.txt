@@ -1,0 +1,31 @@
+--- USERS TABLE ---
+CREATE TABLE `users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('user','driver','admin','marketplace') DEFAULT 'user',
+  `profile_image_url` varchar(255) DEFAULT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `phone` varchar(20) DEFAULT NULL,
+  `birthdate` date DEFAULT NULL,
+  `address` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=151 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+--- ORDERS TABLE ---
+CREATE TABLE `orders` (
+  `id` varchar(50) NOT NULL,
+  `user_id` int NOT NULL,
+  `type` enum('Antar Jemput','Jasa Titip','Marketplace') NOT NULL,
+  `status` enum('Selesai','Dalam Perjalanan','Diproses','Dibatalkan') DEFAULT 'Diproses',
+  `orderDate` date NOT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `notes` text,
+  `total_price` int DEFAULT '0',
+  `driver_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

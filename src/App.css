@@ -1,0 +1,6 @@
+/* Remove default Vite styles as we are building a custom premium UI */
+#root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}

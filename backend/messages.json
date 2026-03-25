@@ -1,0 +1,72 @@
+[
+  {
+    "id": 17,
+    "room_id": "driver-6",
+    "sender_id": "5",
+    "sender_name": null,
+    "sender_image": null,
+    "receiver_id": "6",
+    "receiver_name": null,
+    "receiver_image": null,
+    "content": "halo",
+    "createdAt": "2026-03-24T09:13:41.000Z",
+    "message_type": "text",
+    "file_url": null
+  },
+  {
+    "id": 16,
+    "room_id": "driver-6",
+    "sender_id": "6",
+    "sender_name": null,
+    "sender_image": null,
+    "receiver_id": "6",
+    "receiver_name": null,
+    "receiver_image": null,
+    "content": "halo kak lisa",
+    "createdAt": "2026-03-24T09:13:11.000Z",
+    "message_type": "text",
+    "file_url": null
+  },
+  {
+    "id": 15,
+    "room_id": "driver-6",
+    "sender_id": "5",
+    "sender_name": null,
+    "sender_image": null,
+    "receiver_id": "6",
+    "receiver_name": null,
+    "receiver_image": null,
+    "content": "hallo kak agus",
+    "createdAt": "2026-03-24T09:11:01.000Z",
+    "message_type": "text",
+    "file_url": null
+  },
+  {
+    "id": 14,
+    "room_id": "driver-6",
+    "sender_id": "6",
+    "sender_name": null,
+    "sender_image": null,
+    "receiver_id": "6",
+    "receiver_name": null,
+    "receiver_image": null,
+    "content": "✅ *PESANAN DITERIMA*\n\nDriver Agus Mantap telah menyetujui pesanan Anda. Silakan tunggu, driver sedang menuju ke lokasi.",
+    "createdAt": "2026-03-24T09:10:01.000Z",
+    "message_type": "text",
+    "file_url": null
+  },
+  {
+    "id": 13,
+    "room_id": "driver-6",
+    "sender_id": "5",
+    "sender_name": null,
+    "sender_image": null,
+    "receiver_id": "6",
+    "receiver_name": null,
+    "receiver_image": null,
+    "content": "haloo",
+    "createdAt": "2026-03-24T08:32:26.000Z",
+    "message_type": "text",
+    "file_url": null
+  }
+]
