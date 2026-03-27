@@ -178,7 +178,7 @@ const MerchantVerification = () => {
 
             {/* Modal for viewing merchant documents */}
             {selectedMerchant && (
-                <div className="fixed inset-0 z-[100] flex justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto w-full min-h-screen">
+                <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto w-full min-h-screen pt-8 md:pt-16">
                     <div className="bg-white rounded-3xl p-6 w-full max-w-4xl shadow-xl border border-gray-100 shadow-[0_40px_80px_rgba(0,0,0,0.3)]">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="font-bold text-xl text-brand-dark-blue">Berkas Merchant: {selectedMerchant.store_name}</h3>
@@ -186,7 +186,7 @@ const MerchantVerification = () => {
                                 <XCircle size={28} />
                             </button>
                         </div>
-
+                
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Foto KTP Pemilik</p>
