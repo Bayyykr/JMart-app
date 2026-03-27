@@ -33,7 +33,7 @@ app.get('/api', (req, res) => {
 app.use(express.static(path.join(__dirname, '../../dist')));
 
 // Handle React Router SPA routing (catch-all)
-app.get('(.*)', (req, res) => {
+app.get('/:path*', (req, res) => {
     // If it's an API request that wasn't caught, return 404
     if (req.path.startsWith('/api')) {
         return res.status(404).json({ message: "API Endpoint Not Found" });
