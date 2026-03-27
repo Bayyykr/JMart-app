@@ -55,7 +55,7 @@ const ReportManagement = () => {
         );
     };
 
-    const filteredReports = reports.filter(r => 
+    const filteredReports = reports.filter(r =>
         r.reporterName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         r.reportedName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         r.reason.toLowerCase().includes(searchQuery.toLowerCase())
@@ -74,8 +74,8 @@ const ReportManagement = () => {
                 <div className="p-6 border-b border-gray-50 flex flex-col md:flex-row gap-4 items-center justify-between">
                     <div className="relative w-full md:w-96">
                         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             placeholder="Cari pelapor, terlapor, atau alasan..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -125,14 +125,14 @@ const ReportManagement = () => {
                                         <div className="flex items-center gap-2">
                                             {report.status === 'pending' && (
                                                 <>
-                                                    <button 
+                                                    <button
                                                         onClick={() => handleUpdateStatus(report.id, 'resolved')}
                                                         className="p-2 text-green-500 hover:bg-green-50 rounded-lg transition-all" title="Selesaikan">
                                                         <CheckCircle size={18} />
                                                     </button>
                                                 </>
                                             )}
-                                            <button 
+                                            <button
                                                 onClick={() => setSelectedReport(report)}
                                                 className="p-2 text-brand-dark-blue hover:bg-blue-50 rounded-lg transition-all" title="View Detail">
                                                 <Eye size={18} />
@@ -147,7 +147,7 @@ const ReportManagement = () => {
             </div>
 
             {selectedReport && (
-                <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/50 backdrop-blur-sm p-4 pt-8 md:pt-16">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-xl border border-gray-100">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="font-bold text-lg text-brand-dark-blue">Detail Laporan</h3>
@@ -171,7 +171,7 @@ const ReportManagement = () => {
                             </div>
                         </div>
                         <div className="mt-6 flex justify-end">
-                            <button 
+                            <button
                                 onClick={() => setSelectedReport(null)}
                                 className="px-6 py-2 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-all text-sm"
                             >

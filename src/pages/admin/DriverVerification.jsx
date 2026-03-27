@@ -36,7 +36,7 @@ const DriverVerification = () => {
         }
     };
 
-    const pendingDrivers = drivers.filter(driver => 
+    const pendingDrivers = drivers.filter(driver =>
         driver.status === 'pending' && (
             driver.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             driver.ktp_number?.includes(searchQuery) ||
@@ -54,9 +54,9 @@ const DriverVerification = () => {
 
                 <div className="relative w-full xl:max-w-md group">
                     <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-orange transition-colors" />
-                    <input 
-                        type="text" 
-                        placeholder="Cari nama, NIK, atau plat..." 
+                    <input
+                        type="text"
+                        placeholder="Cari nama, NIK, atau plat..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-14 pr-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl text-sm font-bold text-brand-dark-blue focus:ring-0 focus:border-brand-orange/20 focus:bg-white transition-all outline-none placeholder:text-gray-300 shadow-sm"
@@ -132,7 +132,7 @@ const DriverVerification = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <button 
+                                            <button
                                                 onClick={() => setSelectedDriver(driver)}
                                                 className="flex items-center gap-2 px-3 py-2 bg-gray-50 text-brand-dark-blue rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-colors"
                                             >
@@ -141,12 +141,12 @@ const DriverVerification = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center justify-center gap-4">
-                                                <button 
+                                                <button
                                                     onClick={() => handleAction(driver.user_id, 'verified')}
                                                     className="p-2 text-green-500 hover:bg-green-50 rounded-lg transition-all" title="Approve">
                                                     <CheckCircle size={20} />
                                                 </button>
-                                                <button 
+                                                <button
                                                     onClick={() => handleAction(driver.user_id, 'rejected')}
                                                     className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Reject">
                                                     <XCircle size={20} />
@@ -172,8 +172,8 @@ const DriverVerification = () => {
 
             {/* Modal for viewing driver documents */}
             {selectedDriver && (
-                <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto w-full min-h-screen pt-8 md:pt-16">
-                    <div className="bg-white rounded-3xl p-8 w-full max-w-4xl shadow-xl border border-gray-100 shadow-[0_40px_80px_rgba(0,0,0,0.3)]">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto w-full min-h-screen">
+                    <div className="bg-white rounded-3xl p-8 w-full max-w-4xl shadow-xl border border-gray-100 my-8 shadow-[0_40px_80px_rgba(0,0,0,0.3)]">
                         <div className="flex justify-between items-center mb-8">
                             <div>
                                 <h3 className="font-black text-2xl text-brand-dark-blue leading-none">Berkas Driver</h3>
@@ -183,7 +183,7 @@ const DriverVerification = () => {
                                 <XCircle size={32} />
                             </button>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-4">
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Foto KTP Pengemudi</p>
@@ -222,7 +222,7 @@ const DriverVerification = () => {
                         </div>
 
                         <div className="mt-10 flex justify-end gap-4 border-t border-gray-100 pt-8">
-                            <button 
+                            <button
                                 onClick={() => setSelectedDriver(null)}
                                 className="px-10 py-4 bg-gray-100 text-gray-600 font-black rounded-2xl hover:bg-gray-200 transition-all text-sm uppercase tracking-widest shadow-sm"
                             >

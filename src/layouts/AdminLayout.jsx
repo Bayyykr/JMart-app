@@ -35,7 +35,7 @@ const AdminLayout = () => {
                         <p className="text-xs text-[#8f9eb2]">JMart Console</p>
                     </div>
                 </div>
-                
+
                 <nav className="flex-1 mt-4">
                     {menuItems.map((item) => {
                         const isActive = location.pathname === item.path;
@@ -43,11 +43,10 @@ const AdminLayout = () => {
                             <Link
                                 key={item.path}
                                 to={item.path}
-                                className={`flex items-center gap-3 px-6 py-4 cursor-pointer transition-colors ${
-                                    isActive 
-                                    ? 'bg-brand-light-blue border-r-4 border-brand-orange text-white' 
-                                    : 'text-gray-400 hover:bg-brand-light-blue/50 hover:text-white'
-                                }`}
+                                className={`flex items-center gap-3 px-6 py-4 cursor-pointer transition-colors ${isActive
+                                        ? 'bg-brand-light-blue border-r-4 border-brand-orange text-white'
+                                        : 'text-gray-400 hover:bg-brand-light-blue/50 hover:text-white'
+                                    }`}
                             >
                                 {item.icon}
                                 <span className="font-medium whitespace-nowrap">{item.name}</span>
@@ -87,12 +86,12 @@ const AdminLayout = () => {
                         </div>
                     </div>
                 </header>
-                
-                <div className="flex-1 overflow-y-auto p-4 lg:p-8 relative">
+
+                <div className="flex-1 overflow-y-auto p-6 lg:p-10 relative">
                     <Outlet />
                 </div>
             </main>
-            
+
             {/* Mobile Bottom Navigation */}
             <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around p-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
                 {menuItems.map((item) => (
@@ -107,10 +106,10 @@ const AdminLayout = () => {
                 ))}
             </nav>
 
-            <LogoutModal 
-                isOpen={showLogoutModal} 
-                onClose={() => setShowLogoutModal(false)} 
-                onConfirm={handleLogout} 
+            <LogoutModal
+                isOpen={showLogoutModal}
+                onClose={() => setShowLogoutModal(false)}
+                onConfirm={handleLogout}
             />
         </div>
     );
