@@ -22,20 +22,23 @@ exports.submitOnboarding = async (req, res) => {
         const { ktp_number, vehicle_type, vehicle_plate, vehicle_model } = req.body;
 
         // Handle uploaded files from multer
-        const ktp_image_url = req.files['ktp_file'] ? `/uploads/${req.files['ktp_file'][0].filename}` : null;
-        const selfie_image_url = req.files['selfie_file'] ? `/uploads/${req.files['selfie_file'][0].filename}` : null;
+        const ktp_image_url = req.files && req.files['ktp_file'] ? `/uploads/${req.files['ktp_file'][0].filename}` : null;
+        const selfie_image_url = req.files && req.files['selfie_file'] ? `/uploads/${req.files['selfie_file'][0].filename}` : null;
+
+        // Normalize vehicle_type for ENUM matching (e.g. 'motor' -> 'Motor')
+        const normalizedVehicleType = vehicle_type ? vehicle_type.charAt(0).toUpperCase() + vehicle_type.slice(1).toLowerCase() : 'Motor';
 
         const [existing] = await db.execute('SELECT id FROM driver_profiles WHERE user_id = ?', [userId]);
 
         if (existing.length > 0) {
             await db.execute(
                 'UPDATE driver_profiles SET ktp_number = ?, ktp_image_url = ?, selfie_image_url = ?, vehicle_type = ?, vehicle_plate = ?, vehicle_model = ?, status = "pending" WHERE user_id = ?',
-                [ktp_number, ktp_image_url, selfie_image_url, vehicle_type, vehicle_plate, vehicle_model, userId]
+                [ktp_number, ktp_image_url, selfie_image_url, normalizedVehicleType, vehicle_plate, vehicle_model, userId]
             );
         } else {
             await db.execute(
                 'INSERT INTO driver_profiles (user_id, ktp_number, ktp_image_url, selfie_image_url, vehicle_type, vehicle_plate, vehicle_model, status) VALUES (?, ?, ?, ?, ?, ?, ?, "pending")',
-                [userId, ktp_number, ktp_image_url, selfie_image_url, vehicle_type, vehicle_plate, vehicle_model]
+                [userId, ktp_number, ktp_image_url, selfie_image_url, normalizedVehicleType, vehicle_plate, vehicle_model]
             );
         }
 

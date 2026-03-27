@@ -1,0 +1,1 @@
+["id","user_id","ktp_number","ktp_image_url","selfie_image_url","vehicle_type","vehicle_model","vehicle_plate","status","is_online","total_trips","completed_orders","rating","createdAt","area","latitude","longitude","description","revenue"]

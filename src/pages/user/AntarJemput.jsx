@@ -9,7 +9,7 @@ import { useLocation as useGlobalLocation } from '../../context/LocationContext'
 import { useLocation, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:5000');
+const socket = io('');
 
 // Haversine formula on frontend for real-time distance updates
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -552,7 +552,7 @@ const DriverCard = ({ driver, onBook }) => {
                             }`}>
                             <div className="relative">
                                 <img
-                                    src={profileImage ? (profileImage.startsWith('http') ? profileImage : `http://localhost:5000${profileImage}`) : `https://ui-avatars.com/api/?name=${driver.name}&background=1e6f85&color=fff&size=128`}
+                                    src={profileImage ? (profileImage.startsWith('http') ? profileImage : `${profileImage}`) : `https://ui-avatars.com/api/?name=${driver.name}&background=1e6f85&color=fff&size=128`}
                                     alt={driver.name}
                                     className="w-14 h-14 rounded-full object-cover bg-gray-50 border-2 border-white"
                                     onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${driver.name}&background=1e6f85&color=fff&size=128`; }}

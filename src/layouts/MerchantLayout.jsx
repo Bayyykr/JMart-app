@@ -3,8 +3,9 @@ import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 import { LocationProvider } from '../context/LocationContext';
 import DashboardNavbar from '../components/user/DashboardNavbar';
-import { LayoutDashboard, Package, ShoppingCart, MessageSquare, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, MessageSquare, LogOut, User } from 'lucide-react';
 import LogoutModal from '../components/common/LogoutModal';
+import logoApp from '../assets/logo-app.png';
 
 const MerchantLayout = () => {
     const { user, logout } = useAuth();
@@ -20,6 +21,7 @@ const MerchantLayout = () => {
         { name: 'Produk Saya', path: '/merchant/products', icon: <Package size={20} /> },
         { name: 'Pesanan', path: '/merchant/orders', icon: <ShoppingCart size={20} /> },
         { name: 'Chat', path: '/merchant/chat', icon: <MessageSquare size={20} /> },
+        { name: 'Profil', path: '/merchant/profile', icon: <User size={20} /> },
     ];
 
     const handleLogout = () => {
@@ -33,8 +35,8 @@ const MerchantLayout = () => {
             {/* Sidebar matches User/Driver Sidebar exactly in style */}
             <div className={`h-screen bg-brand-dark-blue text-white flex flex-col fixed left-0 top-0 transition-all duration-300 z-50 ${isSidebarOpen ? 'w-64' : 'w-20'} hidden md:flex`}>
                 <div className={`p-6 flex items-center ${isSidebarOpen ? 'gap-3' : 'justify-center'}`}>
-                    <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl">
-                        <Package className="w-6 h-6 text-brand-orange" />
+                    <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl overflow-hidden shadow-sm shadow-black/10">
+                        <img src={logoApp} alt="JMart Square Logo" className="w-full h-full object-contain drop-shadow-sm bg-transparent" />
                     </div>
                     {isSidebarOpen && (
                         <div className="overflow-hidden">
@@ -77,7 +79,7 @@ const MerchantLayout = () => {
             {/* Main Content Area - Matching User layout exactly */}
             <main className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
                 <DashboardNavbar toggleSidebar={toggleSidebar} />
-                <div className="flex-1 overflow-y-auto p-6 lg:p-10">
+                <div className={`flex-1 overflow-y-auto ${location.pathname.startsWith('/merchant/chat') ? 'p-0' : 'p-6 lg:p-10'}`}>
                     <Outlet />
                 </div>
             </main>

@@ -1,5 +1,6 @@
 const userRepository = require('../repositories/UserRepository');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 exports.register = async (req, res) => {
     try {
@@ -10,7 +11,13 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const userId = await userRepository.save({ name, email, password, role: role || 'user' });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const userId = await userRepository.save({ 
+            name, 
+            email, 
+            password: hashedPassword, 
+            role: role || 'user' 
+        });
         res.status(201).json({ message: 'User registered successfully', userId });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -22,14 +29,20 @@ exports.login = async (req, res) => {
         const { email, password } = req.body;
         const user = await userRepository.findByEmail(email);
 
-        if (!user || user.password !== password) { // In real app, use bcrypt to compare
+        if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        // Strictly check for active status (1). Anything else (0, null, etc) is considered deactivated.
+        if (user.is_active != 1) {
+            console.log(`DEACTIVATED login attempt: ${email} (status: ${user.is_active})`);
+            return res.status(403).json({ message: 'DEACTIVATED' });
         }
 
         const token = jwt.sign(
             { id: user.id, role: user.role },
             process.env.JWT_SECRET,
-            { expiresIn: '1d' }
+            { expiresIn: '3d' }
         );
 
         res.json({

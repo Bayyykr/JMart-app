@@ -60,9 +60,7 @@ const Profil = () => {
         formData.append('image', file);
 
         try {
-            const res = await api.post('/user/profile-image', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            const res = await api.post('/user/profile-image', formData);
             login(res.data.user);
             setAlertMsg('Foto profil berhasil diubah!');
             setTimeout(() => setAlertMsg(''), 3000);
@@ -110,7 +108,7 @@ const Profil = () => {
                     <div className="relative">
                         {user?.profile_image_url ? (
                             <img 
-                                src={user.profile_image_url.startsWith('http') ? user.profile_image_url : `http://localhost:5000${user.profile_image_url}`} 
+                                src={user.profile_image_url.startsWith('http') ? user.profile_image_url : `${user.profile_image_url}`} 
                                 alt={user.name} 
                                 className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm" 
                             />

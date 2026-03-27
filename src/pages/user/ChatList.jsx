@@ -5,7 +5,7 @@ import { useAuth } from '../../context/authContext';
 import api from '../../services/api';
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:5000', { autoConnect: false });
+const socket = io('', { autoConnect: false });
 
 const ChatList = () => {
     const navigate = useNavigate();
@@ -14,67 +14,92 @@ const ChatList = () => {
     const [isLoading, setIsLoading] = React.useState(true);
     const [searchQuery, setSearchQuery] = React.useState('');
 
-    const fetchChats = async () => {
+    const formatChats = React.useCallback((rawData, currentUserId) => {
+        return rawData.map(room => {
+            const isU1 = Number(currentUserId) === Number(room.user1.id);
+            const partner = isU1 ? room.user2 : room.user1;
+            const myUnread = isU1 ? room.user1.unread : room.user2.unread;
+            const isMe = String(room.last_sender_id) === String(currentUserId);
+
+            return {
+                id: room.room_id,
+                partnerId: partner.id,
+                name: partner.name || 'Driver / Seller',
+                profile_image: partner.image
+                    ? (partner.image.startsWith('http') ? partner.image : `${partner.image}`)
+                    : null,
+                lastMessage: room.last_message || '',
+                isMe,
+                time: room.last_message_at
+                    ? new Date(room.last_message_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                    : '--:--',
+                unread: myUnread || 0,
+                type: room.room_id?.startsWith('driver') ? 'Driver' : 'Seller'
+            };
+        });
+    }, []);
+
+    const fetchChats = React.useCallback(async () => {
+        if (!user) return;
         try {
             const res = await api.get('/chat/list');
-            const chats = res.data.map(c => ({
-                id: c.room_id,
-                partnerId: c.partnerId,
-                name: c.partnerName || 'Driver / Seller',
-                profile_image: c.partnerImage
-                    ? (c.partnerImage.startsWith('http') ? c.partnerImage : `http://localhost:5000${c.partnerImage}`)
-                    : null,
-                lastMessage: c.content,
-                time: new Date(c.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-                unread: 0,
-                type: c.room_id.startsWith('driver') ? 'Driver' : 'Seller'
-            }));
-            setActiveChats(chats);
+            setActiveChats(formatChats(res.data, user.id));
         } catch (err) {
             console.error('Fetch Chats Error:', err);
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [user, formatChats]);
 
     React.useEffect(() => {
         if (user) fetchChats();
-    }, [user]);
+    }, [user, fetchChats]);
 
-    // Socket: listen for new messages to update last message and unread count
+    // Socket: listen for chat_list_update (new format with user1/user2)
     React.useEffect(() => {
+        if (!user) return;
         socket.connect();
+        socket.emit('join_personal', user.id);
 
-        const handleNewMessage = (data) => {
+        const handleChatListUpdate = (data) => {
+            const isU1 = Number(user.id) === Number(data.user1.id);
+            const partner = isU1 ? data.user2 : data.user1;
+            const myUnread = isU1 ? data.user1.unread : data.user2.unread;
+            const isMe = String(data.last_sender_id) === String(user.id);
+
+            const updatedItem = {
+                id: data.room_id,
+                partnerId: partner.id,
+                name: partner.name || 'Pengguna JMart',
+                profile_image: partner.image
+                    ? (partner.image.startsWith('http') ? partner.image : `${partner.image}`)
+                    : null,
+                lastMessage: data.last_message || '',
+                isMe,
+                time: new Date(data.last_message_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                unread: myUnread || 0,
+                type: data.room_id?.startsWith('driver') ? 'Driver' : 'Seller'
+            };
+
             setActiveChats(prev => {
-                const existing = prev.find(c => c.id === data.room);
-                if (existing) {
-                    return [
-                        {
-                            ...existing,
-                            lastMessage: data.content || (data.message_type === 'image' ? '📷 Gambar' : '📎 File'),
-                            time: data.time || new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-                            // Only increment unread if message is from partner (not from self)
-                            unread: String(data.sender_id) !== String(user?.id) ? existing.unread + 1 : existing.unread
-                        },
-                        ...prev.filter(c => c.id !== data.room)
-                    ];
+                const existingIndex = prev.findIndex(c => c.id === data.room_id);
+                if (existingIndex !== -1) {
+                    const newChats = [...prev];
+                    newChats.splice(existingIndex, 1);
+                    return [updatedItem, ...newChats];
                 }
-                // New room: refresh the list
-                fetchChats();
-                return prev;
+                return [updatedItem, ...prev];
             });
         };
 
-        socket.on('receive_message', handleNewMessage);
+        socket.on('chat_list_update', handleChatListUpdate);
         return () => {
-            socket.off('receive_message', handleNewMessage);
+            socket.off('chat_list_update', handleChatListUpdate);
             socket.disconnect();
         };
     }, [user]);
 
     const handleChatClick = (chat) => {
-        // Reset unread count
         setActiveChats(prev => prev.map(c => c.id === chat.id ? { ...c, unread: 0 } : c));
         navigate(`/user/chat/${chat.id}`, {
             state: {
@@ -165,7 +190,8 @@ const ChatList = () => {
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <p className={`text-[13px] truncate pr-3 ${chat.unread > 0 ? 'text-gray-800 font-bold' : 'text-gray-500 font-medium'}`}>
-                                            {chat.lastMessage}
+                                            {chat.isMe && <span className="text-gray-400">Anda: </span>}
+                                            {(chat.lastMessage || '').replace(/\[STATUS:(PENDING|ACCEPTED|REJECTED)\]/g, '').replace(/\[ORDER_ID:.*?\]/g, '').replace(/\[PESANAN_BARU_MARKETPLACE\]/g, '').trim()}
                                         </p>
                                         <span className={`text-[10px] font-bold px-3 py-1 rounded-full flex-shrink-0 ${chat.unread > 0 ? 'bg-brand-green text-white' : 'bg-gray-100 text-gray-500'}`}>
                                             {chat.type}

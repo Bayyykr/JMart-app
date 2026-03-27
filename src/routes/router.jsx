@@ -15,6 +15,7 @@ import Marketplace from '../pages/user/Marketplace';
 import OrderSaya from '../pages/user/OrderSaya';
 import Profil from '../pages/user/Profil';
 import Login from '../pages/auth/Login';
+import Register from '../pages/auth/Register';
 import MerchantChat from '../pages/marketplace/MerchantChat';
 import UserChat from '../pages/user/UserChat';
 
@@ -31,11 +32,13 @@ import AdminLayout from '../layouts/AdminLayout';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import UserManagement from '../pages/admin/UserManagement';
 import DriverVerification from '../pages/admin/DriverVerification';
+import ReportManagement from '../pages/admin/ReportManagement';
 
 import MerchantLayout from '../layouts/MerchantLayout';
 import MerchantDashboard from '../pages/marketplace/MerchantDashboard';
 import ProductManagement from '../pages/marketplace/ProductManagement';
 import MerchantOrders from '../pages/marketplace/MerchantOrders';
+import MerchantProfile from '../pages/marketplace/MerchantProfile';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -56,6 +59,10 @@ const router = createBrowserRouter([
     {
         path: '/login',
         element: <Login />,
+    },
+    {
+        path: '/register',
+        element: <Register />,
     },
     {
         path: '/user',
@@ -82,6 +89,7 @@ const router = createBrowserRouter([
             { index: true, element: <DriverDashboard /> },
             { path: 'dashboard', element: <DriverDashboard /> },
             { path: 'chat', element: <DriverChat /> },
+            { path: 'chat/:id', element: <DriverChat /> },
             { path: 'orders', element: <DriverOrders /> },
             { path: 'jastip', element: <DriverJastip /> },
             { path: 'broadcasts', element: <DriverBroadcasts /> },
@@ -95,7 +103,8 @@ const router = createBrowserRouter([
             { index: true, element: <AdminDashboard /> },
             { path: 'users', element: <UserManagement /> },
             { path: 'drivers', element: <DriverVerification /> },
-            { path: 'merchants', element: <MerchantVerification /> }
+            { path: 'merchants', element: <MerchantVerification /> },
+            { path: 'reports', element: <ReportManagement /> }
         ]
     },
     {
@@ -109,7 +118,9 @@ const router = createBrowserRouter([
             { index: true, element: <MerchantDashboard /> },
             { path: 'products', element: <ProductManagement /> },
             { path: 'orders', element: <MerchantOrders /> },
-            { path: 'chat', element: <MerchantChat /> }
+            { path: 'chat', element: <MerchantChat /> },
+            { path: 'chat/:id', element: <MerchantChat /> },
+            { path: 'profile', element: <MerchantProfile /> }
         ]
     }
 ]);

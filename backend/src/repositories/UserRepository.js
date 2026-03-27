@@ -16,7 +16,7 @@ class UserRepository {
     }
 
     async findById(id) {
-        const [rows] = await db.execute('SELECT id, name, email, role, profile_image_url, phone, birthdate, address FROM users WHERE id = ?', [id]);
+        const [rows] = await db.execute('SELECT id, name, email, role, profile_image_url, phone, birthdate, address, is_active FROM users WHERE id = ?', [id]);
         return rows[0];
     }
 }

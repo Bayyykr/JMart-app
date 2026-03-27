@@ -7,7 +7,7 @@ import { io } from 'socket.io-client';
 import api from '../../services/api';
 import { useNavigate, useLocation as useRouterLocation } from 'react-router-dom';
 
-const navSocket = io('http://localhost:5000', { autoConnect: false });
+const navSocket = io('', { autoConnect: false });
 
 const DashboardNavbar = ({ toggleSidebar }) => {
   const { userAreaName, locationStatus, isManual } = useLocation();
@@ -66,33 +66,36 @@ const DashboardNavbar = ({ toggleSidebar }) => {
       </div>
 
       <div className="flex items-center gap-4 lg:gap-6">
-        {/* Global Location Display & Manual Override */}
-        <div
-          onClick={() => setIsPickerOpen(true)}
-          className="hidden sm:flex items-center gap-2 bg-[#f4efe8] px-4 py-2 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:bg-[#ece6db] transition-all cursor-pointer group"
-        >
-          <div className={`p-1.5 rounded-xl transition-colors ${isManual ? "bg-brand-orange/10 text-brand-orange" : "bg-brand-green/10 text-brand-green"}`}>
-            <MapPin size={16} fill="currentColor" className="opacity-80" />
-          </div>
-          <div className="flex flex-col min-w-[140px]">
-            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider leading-none mb-0.5">
-              {locationStatus === 'loading' ? 'Menyinkronkan...' : (isManual ? 'Lokasi Manual' : 'Lokasi GPS')}
-            </span>
-            <div className="flex items-center gap-1">
-              <span className={`text-xs font-bold truncate max-w-[150px] ${locationStatus === 'loading' ? 'text-gray-400 italic font-medium' : 'text-brand-dark-blue'}`}>
-                {locationStatus === 'loading' ? 'Mencari Lokasi...' : (userAreaName || 'Pilih Lokasi...')}
-              </span>
+        {/* Global Location Display & Manual Override — hidden for merchant role */}
+        {user?.role !== 'marketplace' && (
+          <>
+            <div
+              onClick={() => setIsPickerOpen(true)}
+              className="hidden sm:flex items-center gap-2 bg-[#f4efe8] px-4 py-2 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:bg-[#ece6db] transition-all cursor-pointer group"
+            >
+              <div className={`p-1.5 rounded-xl transition-colors ${isManual ? "bg-brand-orange/10 text-brand-orange" : "bg-brand-green/10 text-brand-green"}`}>
+                <MapPin size={16} fill="currentColor" className="opacity-80" />
+              </div>
+              <div className="flex flex-col min-w-[140px]">
+                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider leading-none mb-0.5">
+                  {locationStatus === 'loading' ? 'Menyinkronkan...' : (isManual ? 'Lokasi Manual' : 'Lokasi GPS')}
+                </span>
+                <div className="flex items-center gap-1">
+                  <span className={`text-xs font-bold truncate max-w-[150px] ${locationStatus === 'loading' ? 'text-gray-400 italic font-medium' : 'text-brand-dark-blue'}`}>
+                    {locationStatus === 'loading' ? 'Mencari Lokasi...' : (userAreaName || 'Pilih Lokasi...')}
+                  </span>
+                </div>
+              </div>
+              <div className={`ml-2 p-1.5 bg-white/50 rounded-lg transition-all ${locationStatus === 'loading' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                <RefreshCw size={12} className={`text-gray-400 ${locationStatus === 'loading' ? 'animate-spin text-brand-green' : ''}`} />
+              </div>
             </div>
-          </div>
-          <div className={`ml-2 p-1.5 bg-white/50 rounded-lg transition-all ${locationStatus === 'loading' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-            <RefreshCw size={12} className={`text-gray-400 ${locationStatus === 'loading' ? 'animate-spin text-brand-green' : ''}`} />
-          </div>
-        </div>
-
-        <LocationPickerModal
-          isOpen={isPickerOpen}
-          onClose={() => setIsPickerOpen(false)}
-        />
+            <LocationPickerModal
+              isOpen={isPickerOpen}
+              onClose={() => setIsPickerOpen(false)}
+            />
+          </>
+        )}
 
         {/* Bell icon with real-time unread badge */}
         <button
@@ -121,7 +124,7 @@ const DashboardNavbar = ({ toggleSidebar }) => {
         <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-200 flex items-center justify-center bg-white cursor-pointer shadow-sm">
           {profileImage ? (
             <img
-              src={profileImage.startsWith('http') ? profileImage : `http://localhost:5000${profileImage}`}
+              src={profileImage.startsWith('http') ? profileImage : `${profileImage}`}
               alt="Profile"
               className="w-full h-full object-cover"
             />

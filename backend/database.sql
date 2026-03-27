@@ -32,45 +32,48 @@ CREATE TABLE IF NOT EXISTS products (
     sold INT DEFAULT 0,
     price INT NOT NULL,
     emoji VARCHAR(10),
+    image_url VARCHAR(255) DEFAULT NULL,
     condition_status ENUM('Baru', 'Bekas') DEFAULT NULL,
-    latitude DOUBLE DEFAULT NULL, -- Fixed store locations
+    latitude DOUBLE DEFAULT NULL, -- Will be kept for backwards comp / cache but main location is in merchant_profiles
     longitude DOUBLE DEFAULT NULL,
+    open_time TIME DEFAULT NULL,
+    close_time TIME DEFAULT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- Seed: Makanan
-INSERT IGNORE INTO products (id, name, seller, category, description, rating, sold, price, emoji) VALUES
-(1, 'Nasi Goreng Spesial', 'Warung Barokah', 'Makanan', 'Nasi goreng dengan telur, ayam, dan sayuran segar', 4.8, 120, 18000, '🍛'),
-(2, 'Es Kopi Susu', 'Kopi Nusantara', 'Makanan', 'Kopi susu dingin dengan gula aren asli', 4.9, 340, 15000, '☕'),
-(3, 'Ayam Geprek', 'Geprek Mantul', 'Makanan', 'Ayam geprek sambal bawang level 1-5', 4.7, 89, 20000, '🍗'),
-(4, 'Bakso Beranak', 'Bakso Pak Kumis', 'Makanan', 'Bakso jumbo isi bakso kecil, tahu, dan siomay', 4.8, 215, 22000, '🍜'),
-(5, 'Sate Ayam Madura', 'Sate H. Mansur', 'Makanan', '10 tusuk sate ayam bumbu kacang khas Madura', 4.9, 178, 25000, '🍢'),
-(6, 'Mie Ayam Bakso', 'Mie Ayam Cak To', 'Makanan', 'Mie ayam komplit dengan bakso dan pangsit goreng', 4.6, 156, 17000, '🍜'),
-(7, 'Es Teh Manis', 'Warung Barokah', 'Makanan', 'Es teh manis segar dari teh pilihan', 4.5, 420, 5000, '🧊'),
-(8, 'Pecel Lele', 'Lesehan Bu Dar', 'Makanan', 'Lele goreng crispy dengan sambal pecel dan lalapan', 4.7, 95, 16000, '🐟');
+INSERT IGNORE INTO products (id, name, seller, category, description, rating, sold, price, emoji, image_url, open_time, close_time) VALUES
+(1, 'Nasi Goreng Spesial', 'Toko Berkah', 'Makanan', 'Nasi goreng dengan telur, ayam, dan sayuran segar', 4.8, 120, 18000, '🍛', 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=800&q=80', '08:00:00', '22:00:00'),
+(2, 'Es Kopi Susu', 'Toko Berkah', 'Makanan', 'Kopi susu dingin dengan gula aren asli', 4.9, 340, 15000, '☕', 'https://images.unsplash.com/photo-1576403212623-0104618e0018?auto=format&fit=crop&w=800&q=80', '08:00:00', '22:00:00'),
+(3, 'Ayam Geprek', 'Toko Berkah', 'Makanan', 'Ayam geprek sambal bawang level 1-5', 4.7, 89, 20000, '🍗', 'https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=800&q=80', '08:00:00', '22:00:00'),
+(4, 'Bakso Beranak', 'Toko Berkah', 'Makanan', 'Bakso jumbo isi bakso kecil, tahu, dan siomay', 4.8, 215, 22000, '🍜', 'https://images.unsplash.com/photo-1594917570498-88849bfa00ff?auto=format&fit=crop&w=800&q=80', '08:00:00', '22:00:00'),
+(5, 'Sate Ayam Madura', 'Toko Berkah', 'Makanan', '10 tusuk sate ayam bumbu kacang khas Madura', 4.9, 178, 25000, '🍢', 'https://images.unsplash.com/photo-1591814468924-caf88d1232e1?auto=format&fit=crop&w=800&q=80', '16:00:00', '23:59:00'),
+(6, 'Mie Ayam Bakso', 'Toko Berkah', 'Makanan', 'Mie ayam komplit dengan bakso dan pangsit goreng', 4.6, 156, 17000, '🍜', 'https://images.unsplash.com/photo-1626804475297-41607ea0ba4e?auto=format&fit=crop&w=800&q=80', '10:00:00', '21:00:00'),
+(7, 'Es Teh Manis', 'Toko Berkah', 'Makanan', 'Es teh manis segar dari teh pilihan', 4.5, 420, 5000, '🧊', 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=800&q=80', '08:00:00', '22:00:00'),
+(8, 'Pecel Lele', 'Toko Berkah', 'Makanan', 'Lele goreng crispy dengan sambal pecel dan lalapan', 4.7, 95, 16000, '🐟', 'https://images.unsplash.com/photo-1606821817300-85fbd2354c86?auto=format&fit=crop&w=800&q=80', '17:00:00', '23:59:00');
 
 -- Seed: Jasa (Services)
-INSERT IGNORE INTO products (id, name, seller, category, description, rating, sold, price, emoji) VALUES
-(9, 'Laundry Kiloan', 'Clean Fresh Laundry', 'Jasa', 'Cuci + setrika, antar jemput gratis min 3kg. Selesai 2 hari.', 4.8, 310, 7000, '🧺'),
-(10, 'Cuci Motor', 'Doorsmeer Bersih Jaya', 'Jasa', 'Cuci motor komplit body, mesin, dan velg. Bonus semir ban.', 4.6, 185, 15000, '🏍️'),
-(11, 'Cuci Mobil', 'Doorsmeer Bersih Jaya', 'Jasa', 'Cuci mobil luar dalam, poles dashboard, vacuum interior.', 4.7, 120, 45000, '🚗'),
-(12, 'Servis AC', 'Teknik Sejuk Jember', 'Jasa', 'Cuci AC + isi freon, garansi 1 bulan, semua merk.', 4.9, 78, 150000, '❄️'),
-(13, 'Jasa Jahit', 'Taylor Berkah', 'Jasa', 'Permak celana/baju, jahit baru, obras. Bahan bisa sendiri.', 4.5, 92, 25000, '🧵'),
-(14, 'Sedot WC', 'Sedot WC Jember Bersih', 'Jasa', 'Sedot WC mampet, jangkauan seluruh Jember. Alat modern.', 4.4, 45, 350000, '🚽'),
-(15, 'Potong Rambut', 'Barbershop Keren', 'Jasa', 'Potong rambut pria, gaya kekinian, free styling pomade.', 4.7, 230, 25000, '💇'),
-(16, 'Service HP', 'Phone Fix Jember', 'Jasa', 'Ganti LCD, baterai, konektor charging. Garansi 30 hari.', 4.6, 67, 50000, '📱');
+INSERT IGNORE INTO products (id, name, seller, category, description, rating, sold, price, emoji, image_url) VALUES
+(9, 'Laundry Kiloan', 'Toko Berkah', 'Jasa', 'Cuci + setrika, antar jemput gratis min 3kg. Selesai 2 hari.', 4.8, 310, 7000, '🧺', 'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=800&q=80'),
+(10, 'Cuci Motor', 'Toko Berkah', 'Jasa', 'Cuci motor komplit body, mesin, dan velg. Bonus semir ban.', 4.6, 185, 15000, '🏍️', 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&w=800&q=80'),
+(11, 'Cuci Mobil', 'Toko Berkah', 'Jasa', 'Cuci mobil luar dalam, poles dashboard, vacuum interior.', 4.7, 120, 45000, '🚗', 'https://images.unsplash.com/photo-1620917670265-2bc85cecd978?auto=format&fit=crop&w=800&q=80'),
+(12, 'Servis AC', 'Toko Berkah', 'Jasa', 'Cuci AC + isi freon, garansi 1 bulan, semua merk.', 4.9, 78, 150000, '❄️', 'https://images.unsplash.com/photo-1621503952136-1e967a1cbeeb?auto=format&fit=crop&w=800&q=80'),
+(13, 'Jasa Jahit', 'Toko Berkah', 'Jasa', 'Permak celana/baju, jahit baru, obras. Bahan bisa sendiri.', 4.5, 92, 25000, '🧵', 'https://images.unsplash.com/photo-1590740621404-3866d12f3bc1?auto=format&fit=crop&w=800&q=80'),
+(14, 'Sedot WC', 'Toko Berkah', 'Jasa', 'Sedot WC mampet, jangkauan seluruh Jember. Alat modern.', 4.4, 45, 350000, '🚽', 'https://images.unsplash.com/photo-1588698944583-0498b95cd9c2?auto=format&fit=crop&w=800&q=80'),
+(15, 'Potong Rambut', 'Toko Berkah', 'Jasa', 'Potong rambut pria, gaya kekinian, free styling pomade.', 4.7, 230, 25000, '💇', 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=800&q=80'),
+(16, 'Service HP', 'Toko Berkah', 'Jasa', 'Ganti LCD, baterai, konektor charging. Garansi 30 hari.', 4.6, 67, 50000, '📱', 'https://images.unsplash.com/photo-1581454508605-e1fc8d28e75e?auto=format&fit=crop&w=800&q=80');
 
 -- Seed: Barang Bekas (Used Items)
-INSERT IGNORE INTO products (id, name, seller, category, description, rating, sold, price, emoji, condition_status) VALUES
-(17, 'iPhone 12 64GB', 'Toko Gadget Jember', 'Barang Bekas', 'Kondisi 90%, baterai health 87%, fullset tanpa dus.', 4.5, 3, 5500000, '📱', 'Bekas'),
-(18, 'Laptop ASUS VivoBook', 'Rizky Komputer', 'Barang Bekas', 'i5 Gen 10, RAM 8GB, SSD 512GB. Mulus, jarang pakai.', 4.7, 2, 4200000, '💻', 'Bekas'),
-(19, 'Sepeda MTB Polygon', 'Komunitas Gowes Jember', 'Barang Bekas', 'Polygon Premier 4, ukuran M, ban baru, kondisi 85%.', 4.3, 1, 2800000, '🚲', 'Bekas'),
-(20, 'Buku Paket Kuliah Teknik', 'Mahasiswa UNEJ', 'Barang Bekas', 'Paket 5 buku teknik informatika semester 1-2. Masih bersih.', 4.6, 8, 150000, '📚', 'Bekas'),
-(21, 'PS4 Slim 1TB', 'Game Zone Jember', 'Barang Bekas', '2 stik ori, 5 kaset game, kondisi 95%. Normal semua.', 4.8, 2, 3200000, '🎮', 'Bekas'),
-(22, 'Printer Canon G2010', 'Toko ATK Makmur', 'Barang Bekas', 'Printer infus bawaan, scan copy print. Head bersih.', 4.4, 4, 850000, '🖨️', 'Bekas'),
-(23, 'Kulkas Sharp 2 Pintu', 'Elektronik Jaya', 'Barang Bekas', 'Kapasitas 170L, hemat listrik, kondisi 80%. Masih dingin normal.', 4.3, 1, 1500000, '🧊', 'Bekas'),
-(24, 'Rak Buku Kayu Jati', 'Mebel Pak Tarno', 'Barang Bekas', 'Rak 5 tingkat, kokoh, finishing halus. Bisa custom ukuran.', 4.5, 5, 450000, '🪵', 'Baru');
+INSERT IGNORE INTO products (id, name, seller, category, description, rating, sold, price, emoji, condition_status, image_url) VALUES
+(17, 'iPhone 12 64GB', 'Toko Berkah', 'Barang', 'Kondisi 90%, baterai health 87%, fullset tanpa dus.', 4.5, 3, 5500000, '📱', 'Bekas', 'https://images.unsplash.com/photo-1603798125914-7b5d27789248?auto=format&fit=crop&w=800&q=80'),
+(18, 'Laptop ASUS VivoBook', 'Toko Berkah', 'Barang', 'i5 Gen 10, RAM 8GB, SSD 512GB. Mulus, jarang pakai.', 4.7, 2, 4200000, '💻', 'Bekas', 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80'),
+(19, 'Sepeda MTB', 'Toko Berkah', 'Barang', 'Polygon Premier 4, ukuran M, ban baru, kondisi 85%.', 4.3, 1, 2800000, '🚲', 'Bekas', 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80'),
+(20, 'Buku Paket Kuliah', 'Toko Berkah', 'Barang', 'Paket 5 buku teknik informatika semester 1-2. Masih bersih.', 4.6, 8, 150000, '📚', 'Bekas', 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=80'),
+(21, 'PS4 Slim 1TB', 'Toko Berkah', 'Barang', '2 stik ori, 5 kaset game, kondisi 95%. Normal semua.', 4.8, 2, 3200000, '🎮', 'Bekas', 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=800&q=80'),
+(22, 'Printer Canon', 'Toko Berkah', 'Barang', 'Printer infus bawaan, scan copy print. Head bersih.', 4.4, 4, 850000, '🖨️', 'Bekas', 'https://images.unsplash.com/photo-1612815154858-60aa4c59eae6?auto=format&fit=crop&w=800&q=80'),
+(23, 'Kulkas 2 Pintu', 'Toko Berkah', 'Barang', 'Kapasitas 170L, hemat listrik, kondisi 80%. Masih dingin normal.', 4.3, 1, 1500000, '🧊', 'Bekas', 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?auto=format&fit=crop&w=800&q=80'),
+(24, 'Rak Buku Jati', 'Toko Berkah', 'Barang', 'Rak 5 tingkat, kokoh, finishing halus. Bisa custom ukuran.', 4.5, 5, 450000, '🪵', 'Baru', 'https://images.unsplash.com/photo-1594620302200-9a762244a156?auto=format&fit=crop&w=800&q=80');
 
 -- Tabel Jastips
 CREATE TABLE IF NOT EXISTS jastips (
@@ -96,17 +99,21 @@ CREATE TABLE IF NOT EXISTS orders (
     id VARCHAR(50) PRIMARY KEY,
     user_id INT NOT NULL,
     type ENUM('Antar Jemput', 'Jasa Titip', 'Marketplace') NOT NULL,
+    shipping_method ENUM('COD', 'Delivery') DEFAULT NULL,
     status ENUM('Selesai', 'Dalam Perjalanan', 'Diproses', 'Dibatalkan') DEFAULT 'Diproses',
     orderDate DATE NOT NULL,
     notes TEXT,
+    driver_id INT DEFAULT NULL,
+    total_price INT DEFAULT 0,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (driver_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
-INSERT IGNORE INTO orders (id, user_id, type, status, orderDate) VALUES
-('ORD-001', 1, 'Antar Jemput', 'Selesai', '2026-03-09'),
-('ORD-002', 1, 'Jasa Titip', 'Dalam Perjalanan', '2026-03-08'),
-('ORD-003', 1, 'Marketplace', 'Diproses', '2026-03-07');
+INSERT IGNORE INTO orders (id, user_id, type, shipping_method, status, orderDate, notes) VALUES
+('ORD-001', 1, 'Antar Jemput', NULL, 'Selesai', '2026-03-09', NULL),
+('ORD-002', 1, 'Jasa Titip', NULL, 'Dalam Perjalanan', '2026-03-08', NULL),
+('ORD-003', 1, 'Marketplace', 'Delivery', 'Diproses', '2026-03-07', 'Nasi Goreng Spesial x2 (Toko Berkah)');
 
 -- Tabel Drivers Info (Visibility/Mock)
 CREATE TABLE IF NOT EXISTS drivers_info (
@@ -194,14 +201,21 @@ CREATE TABLE IF NOT EXISTS merchant_profiles (
     store_name VARCHAR(255) NOT NULL,
     store_address VARCHAR(255) NOT NULL,
     ktp_number VARCHAR(16) NOT NULL,
+    product_description TEXT DEFAULT NULL,
+    village VARCHAR(100) DEFAULT NULL,
+    district VARCHAR(100) DEFAULT NULL,
+    city VARCHAR(100) DEFAULT NULL,
+    full_address TEXT DEFAULT NULL,
+    latitude DOUBLE DEFAULT NULL,
+    longitude DOUBLE DEFAULT NULL,
     status ENUM('pending', 'verified', 'rejected') DEFAULT 'pending',
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Mock Data Merchant Profile
-INSERT IGNORE INTO merchant_profiles (user_id, store_name, store_address, ktp_number, status) VALUES
-(4, 'Toko Berkah', 'Jl. Kalimantan No. 1, Jember', '3512345678901235', 'verified');
+INSERT IGNORE INTO merchant_profiles (user_id, store_name, store_address, ktp_number, village, district, city, full_address, status, latitude, longitude) VALUES
+(4, 'Toko Berkah', 'Sumbersari, Jember', '3512345678901235', 'Sumbersari', 'Sumbersari', 'Jember', 'Jl. Kalimantan No. 1', 'verified', -8.1650, 113.7180);
 
 -- Tabel Messages (Chat Sistem)
 CREATE TABLE IF NOT EXISTS messages (

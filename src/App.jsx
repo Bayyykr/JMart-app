@@ -8,7 +8,17 @@ import './App.css';
 function App() {
   return (
     <AuthProvider>
-      <Toaster position="top-center" />
+      <Toaster 
+        position="top-center" 
+        containerStyle={{
+          zIndex: 999999,
+        }}
+        toastOptions={{
+          style: {
+            zIndex: 999999,
+          },
+        }}
+      />
       <RouterProvider router={router} />
     </AuthProvider>
   );

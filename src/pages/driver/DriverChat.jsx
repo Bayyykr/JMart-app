@@ -5,7 +5,7 @@ import { MessageCircle, Send, ArrowLeft, MoreVertical, Search, Paperclip, Image,
 import api from '../../services/api';
 import { useLocation as useRouterLocation } from 'react-router-dom';
 
-const socket = io('http://localhost:5000');
+const socket = io('');
 
 const DriverChat = () => {
     const { user } = useAuth();
@@ -29,7 +29,7 @@ const DriverChat = () => {
             return {
                 id: roomId,
                 name: routerLocation.state?.partnerName || 'Partner',
-                image: partnerImage ? (partnerImage.startsWith('http') ? partnerImage : `http://localhost:5000${partnerImage}`) : null,
+                image: partnerImage ? (partnerImage.startsWith('http') ? partnerImage : `${partnerImage}`) : null,
                 partnerId: routerLocation.state?.partnerId
             };
         }
@@ -64,7 +64,7 @@ const DriverChat = () => {
                         id: room.room_id,
                         room_id: room.room_id,
                         name: partner.name || 'Pengguna JMart',
-                        image: partner.image ? (partner.image.startsWith('http') ? partner.image : `http://localhost:5000${partner.image}`) : null,
+                        image: partner.image ? (partner.image.startsWith('http') ? partner.image : `${partner.image}`) : null,
                         partnerId: partner.id,
                         lastMsg: room.last_message,
                         time: room.last_message_at ? new Date(room.last_message_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '--:--',
@@ -96,7 +96,7 @@ const DriverChat = () => {
                     id: data.room_id,
                     room_id: data.room_id,
                     name: partner.name || 'Pengguna JMart',
-                    image: partner.image ? (partner.image.startsWith('http') ? partner.image : `http://localhost:5000${partner.image}`) : null,
+                    image: partner.image ? (partner.image.startsWith('http') ? partner.image : `${partner.image}`) : null,
                     partnerId: partner.id,
                     lastMsg: data.last_message,
                     time: new Date(data.last_message_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
@@ -143,7 +143,7 @@ const DriverChat = () => {
                     setActiveChat(prev => ({
                         ...prev,
                         name: partner.name,
-                        image: partner.image ? (partner.image.startsWith('http') ? partner.image : `http://localhost:5000${partner.image}`) : null,
+                        image: partner.image ? (partner.image.startsWith('http') ? partner.image : `${partner.image}`) : null,
                         partnerId: partner.id
                     }));
                 }
@@ -452,11 +452,11 @@ const DriverChat = () => {
                                                 
                                                 {msg.message_type === 'image' ? (
                                                     <div className="space-y-1.5">
-                                                        <img src={`http://localhost:5000${msg.file_url}`} alt="Attachment" className="max-w-full rounded cursor-pointer border border-black/5" onClick={() => window.open(`http://localhost:5000${msg.file_url}`)} />
+                                                        <img src={`${msg.file_url}`} alt="Attachment" className="max-w-full rounded cursor-pointer border border-black/5" onClick={() => window.open(`${msg.file_url}`)} />
                                                         {msg.content && <p className="whitespace-pre-wrap">{msg.content}</p>}
                                                     </div>
                                                 ) : msg.message_type === 'file' ? (
-                                                    <a href={`http://localhost:5000${msg.file_url}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2 bg-black/5 rounded-md hover:bg-black/10 transition-colors">
+                                                    <a href={`${msg.file_url}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2 bg-black/5 rounded-md hover:bg-black/10 transition-colors">
                                                         <div className="w-9 h-9 bg-white rounded flex items-center justify-center text-[#0a2540] border border-gray-200 shadow-sm"><Paperclip size={18} /></div>
                                                         <div className="flex-1 min-w-0"><p className="text-xs font-bold truncate">File Berkas</p><p className="text-[10px] text-gray-500 uppercase tracking-tighter">Buka di Tab Baru</p></div>
                                                     </a>

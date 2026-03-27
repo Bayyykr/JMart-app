@@ -4,12 +4,13 @@ import { useAuth } from '../../context/authContext';
 import { io } from 'socket.io-client';
 import {
     MessageCircle, Send, ArrowLeft, MoreVertical, Search,
-    Paperclip, Image, CheckCheck, Trash2, MapPin, Flag, Calendar, Clock, AlignLeft, Bookmark, CheckSquare
+    Paperclip, Image, CheckCheck, Trash2, MapPin, Flag, Calendar, Clock, AlignLeft, Bookmark, CheckSquare,
+    Package, ShoppingCart, Truck, Wallet, FileText
 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
-const socket = io('http://localhost:5000');
+const socket = io('');
 
 const UserChat = () => {
     const { id } = useParams();
@@ -42,7 +43,7 @@ const UserChat = () => {
             return {
                 id: roomId,
                 name: routerLocation.state?.partnerName || 'Partner',
-                image: partnerImage ? (partnerImage.startsWith('http') ? partnerImage : `http://localhost:5000${partnerImage}`) : null,
+                image: partnerImage ? (partnerImage.startsWith('http') ? partnerImage : `${partnerImage}`) : null,
                 partnerId: partnerId
             };
         }
@@ -83,7 +84,7 @@ const UserChat = () => {
                     id: room.room_id,
                     room_id: room.room_id,
                     name: partner.name || 'Pengguna JMart',
-                    image: partner.image ? (partner.image.startsWith('http') ? partner.image : `http://localhost:5000${partner.image}`) : null,
+                    image: partner.image ? (partner.image.startsWith('http') ? partner.image : `${partner.image}`) : null,
                     partnerId: partner.id,
                     lastMsg: room.last_message || '',
                     time: room.last_message_at ? new Date(room.last_message_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '--:--',
@@ -131,7 +132,7 @@ const UserChat = () => {
                     id: data.room_id,
                     room_id: data.room_id,
                     name: partner.name || 'Pengguna JMart',
-                    image: partner.image ? (partner.image.startsWith('http') ? partner.image : `http://localhost:5000${partner.image}`) : null,
+                    image: partner.image ? (partner.image.startsWith('http') ? partner.image : `${partner.image}`) : null,
                     partnerId: partner.id,
                     lastMsg: data.last_message || '',
                     time: new Date(data.last_message_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
@@ -179,7 +180,7 @@ const UserChat = () => {
                     setActiveChat(prev => ({
                         ...prev,
                         name: partner.name,
-                        image: partner.image ? (partner.image.startsWith('http') ? partner.image : `http://localhost:5000${partner.image}`) : null,
+                        image: partner.image ? (partner.image.startsWith('http') ? partner.image : `${partner.image}`) : null,
                         partnerId: partner.id
                     }));
                 }
@@ -617,16 +618,17 @@ const UserChat = () => {
 
                                 {messages.map((msg, idx) => {
                                     const isMine = msg.isMine;
-                                    const isOrder = msg.content?.includes('*Lokasi Jemput:*') || msg.content?.includes('🚩 *PESANAN BARU*');
+                                    const isOrder = msg.content?.includes('*Lokasi Jemput:*') || msg.content?.includes('🚩 *PESANAN BARU*') || msg.content?.includes('[PESANAN_BARU_MARKETPLACE]');
                                     const isProposal = msg.content?.includes('✅ *MENGAJUKAN PENAWARAN*');
                                     
-                                    // Parse statuses from content
                                     const isPending = msg.content?.includes('[STATUS:PENDING]');
                                     const isAccepted = msg.content?.includes('[STATUS:ACCEPTED]');
                                     const isRejected = msg.content?.includes('[STATUS:REJECTED]');
                                     
-                                    // Remove the status tags for display
-                                    const displayContent = msg.content?.replace(/\[STATUS:(PENDING|ACCEPTED|REJECTED)\]/g, '').trim();
+                                    const displayContent = msg.content?.replace(/\[STATUS:(PENDING|ACCEPTED|REJECTED)\]/g, '')
+                                                                        .replace(/\[ORDER_ID:.*?\]/g, '')
+                                                                        .replace(/\[PESANAN_BARU_MARKETPLACE\]/g, '')
+                                                                        .trim();
 
                                     return (
                                         <div
@@ -640,24 +642,16 @@ const UserChat = () => {
                                                 }
                                                 ${isOrder ? 'border-l-4 border-brand-green' : ''}`}
                                             >
-                                                {/* Bubble Tail */}
                                                 <div className={`absolute top-0 w-2 h-2.5 ${isMine ? '-right-2 border-l-[8px] border-l-[#dcf8c6] border-b-[10px] border-b-transparent' : '-left-2 border-r-[8px] border-r-white border-b-[10px] border-b-transparent'}`} />
 
                                                 {msg.message_type === 'image' ? (
                                                     <div className="space-y-1.5">
-                                                        <img
-                                                            src={`http://localhost:5000${msg.file_url}`}
-                                                            alt="Attachment"
-                                                            className="max-w-full rounded cursor-pointer border border-black/5"
-                                                            onClick={() => window.open(`http://localhost:5000${msg.file_url}`)}
-                                                        />
+                                                        <img src={`${msg.file_url}`} alt="Attachment" className="max-w-full rounded cursor-pointer border border-black/5" onClick={() => window.open(`${msg.file_url}`)} />
                                                         {msg.content && <p className="whitespace-pre-wrap">{msg.content}</p>}
                                                     </div>
                                                 ) : msg.message_type === 'file' ? (
-                                                    <a href={`http://localhost:5000${msg.file_url}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2 bg-black/5 rounded-md hover:bg-black/10 transition-colors">
-                                                        <div className="w-9 h-9 bg-white rounded flex items-center justify-center text-brand-green border border-gray-200 shadow-sm">
-                                                            <Paperclip size={18} />
-                                                        </div>
+                                                    <a href={`${msg.file_url}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2 bg-black/5 rounded-md hover:bg-black/10 transition-colors">
+                                                        <div className="w-9 h-9 bg-white rounded flex items-center justify-center text-brand-green border border-gray-200 shadow-sm"><Paperclip size={18} /></div>
                                                         <div className="flex-1 min-w-0">
                                                             <p className="text-xs font-bold truncate">File Berkas</p>
                                                             <p className="text-[10px] text-gray-500 uppercase tracking-tighter">Buka di Tab Baru</p>
@@ -667,112 +661,56 @@ const UserChat = () => {
                                                     <div className="flex flex-col">
                                                         {msg.message_type === 'broadcast_offer' ? (
                                                             <div className="bg-white/50 p-3 rounded-xl border border-brand-green/20">
-                                                                <div className="flex items-center gap-2 mb-2 text-brand-green">
-                                                                    <div className="p-1.5 bg-brand-green/10 rounded-lg">
-                                                                        <MessageCircle size={14} />
-                                                                    </div>
-                                                                    <span className="text-[11px] font-extrabold uppercase tracking-wider">Penawaran Antar Jemput</span>
-                                                                </div>
-                                                                
+                                                                <div className="flex items-center gap-2 mb-2 text-brand-green"><div className="p-1.5 bg-brand-green/10 rounded-lg"><MessageCircle size={14} /></div><span className="text-[11px] font-extrabold uppercase tracking-wider">Penawaran Antar Jemput</span></div>
                                                                 {(() => {
                                                                     try {
                                                                         const data = JSON.parse(msg.content);
                                                                         const isPending = !data.status || data.status === 'pending';
                                                                         const isAccepted = data.status === 'accepted';
                                                                         const isRejected = data.status === 'rejected';
-
                                                                         return (
                                                                             <div className="space-y-3">
-                                                                                <div className="space-y-1">
-                                                                                    <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase">
-                                                                                        <span>Rute</span>
-                                                                                    </div>
-                                                                                    <p className="text-xs font-bold text-brand-dark-blue line-clamp-1">{data.pickup} → {data.destination}</p>
-                                                                                </div>
-                                                                                
+                                                                                <div className="space-y-1"><div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase"><span>Rute</span></div><p className="text-xs font-bold text-brand-dark-blue line-clamp-1">{data.pickup} → {data.destination}</p></div>
                                                                                 <div className="flex items-end justify-between gap-4 pt-2 border-t border-gray-100">
-                                                                                    <div>
-                                                                                        <p className="text-[10px] text-gray-400 font-bold uppercase">Harga</p>
-                                                                                        <p className="text-lg font-black text-brand-green">Rp {data.price?.toLocaleString('id-ID')}</p>
-                                                                                    </div>
-                                                                                    
+                                                                                    <div><p className="text-[10px] text-gray-400 font-bold uppercase">Harga</p><p className="text-lg font-black text-brand-green">Rp {data.price?.toLocaleString('id-ID')}</p></div>
                                                                                     {!isMine && isPending && (
                                                                                         <div className="flex gap-2">
-                                                                                            <button 
-                                                                                                onClick={() => handleAcceptBroadcastOffer(msg)}
-                                                                                                className="px-4 py-2 bg-brand-green text-white rounded-xl text-xs font-bold shadow-sm hover:shadow-md transition-all active:scale-95"
-                                                                                            >Terima</button>
-                                                                                            <button 
-                                                                                                onClick={() => handleRejectBroadcastOffer(msg)}
-                                                                                                className="px-4 py-2 bg-red-50 text-red-500 rounded-xl text-xs font-bold hover:bg-red-100 transition-all"
-                                                                                            >Tolak</button>
+                                                                                            <button onClick={() => handleAcceptBroadcastOffer(msg)} className="px-4 py-2 bg-brand-green text-white rounded-xl text-xs font-bold shadow-sm hover:shadow-md transition-all active:scale-95">Terima</button>
+                                                                                            <button onClick={() => handleRejectBroadcastOffer(msg)} className="px-4 py-2 bg-red-50 text-red-500 rounded-xl text-xs font-bold hover:bg-red-100 transition-all">Tolak</button>
                                                                                         </div>
                                                                                     )}
                                                                                 </div>
                                                                                 {!isPending && (
-                                                                                    <div className={`mt-2 px-3 py-1.5 rounded-md text-xs font-bold text-center border uppercase tracking-wider ${isAccepted ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>
-                                                                                        {isAccepted ? 'Penawaran Diterima' : 'Penawaran Ditolak'}
-                                                                                    </div>
+                                                                                    <div className={`mt-2 px-3 py-1.5 rounded-md text-xs font-bold text-center border uppercase tracking-wider ${isAccepted ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>{isAccepted ? 'Penawaran Diterima' : 'Penawaran Ditolak'}</div>
                                                                                 )}
                                                                             </div>
                                                                         );
-                                                                    } catch (e) {
-                                                                        return <p className="text-xs italic text-gray-400">Gagal memuat detail penawaran</p>;
-                                                                    }
+                                                                    } catch (e) { return <p className="text-xs italic text-gray-400">Gagal memuat detail penawaran</p>; }
                                                                 })()}
                                                             </div>
                                                         ) : isProposal ? (
                                                             <div className="bg-white/50 p-3 rounded-xl border border-brand-green/20">
-                                                                <div className="flex items-center gap-2 mb-2 text-brand-green">
-                                                                    <div className="p-1.5 bg-brand-green/10 rounded-lg">
-                                                                        <MessageCircle size={14} />
-                                                                    </div>
-                                                                    <span className="text-[11px] font-extrabold uppercase tracking-wider">
-                                                                        {isMine ? 'Penawaran Anda' : 'Penawaran Antar Jemput'}
-                                                                    </span>
-                                                                </div>
-                                                                
+                                                                <div className="flex items-center gap-2 mb-2 text-brand-green"><div className="p-1.5 bg-brand-green/10 rounded-lg"><MessageCircle size={14} /></div><span className="text-[11px] font-extrabold uppercase tracking-wider">{isMine ? 'Penawaran Anda' : 'Penawaran Antar Jemput'}</span></div>
                                                                 {(() => {
-                                                                    const dariMatch = msg.content?.match(/📍 \*Dari:\*\s*(.*)/);
-                                                                    const keMatch = msg.content?.match(/🏁 \*Ke:\*\s*(.*)/);
-                                                                    const hargaMatch = msg.content?.match(/💰 \*Harga Penawaran:\*\s*Rp\s*([\d,.]+)/);
-                                                                    
-                                                                    const pickup = dariMatch ? dariMatch[1].trim() : '-';
-                                                                    const destination = keMatch ? keMatch[1].trim() : '-';
-                                                                    const priceStr = hargaMatch ? hargaMatch[1].trim() : '-';
-
+                                                                    const text = displayContent || '';
+                                                                    const getVal = (reg) => { const m = text.match(reg); return m ? m[1].trim() : '-'; };
+                                                                    const pickup = getVal(/📍 \*Dari:\*\s*(.*)/);
+                                                                    const dest = getVal(/🏁 \*Ke:\*\s*(.*)/);
+                                                                    const price = getVal(/💰 \*Harga Penawaran:\*\s*Rp\s*([\d,.]+)/);
                                                                     return (
                                                                         <div className="space-y-3">
-                                                                            <div className="space-y-1">
-                                                                                <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase">
-                                                                                    <span>Rute</span>
-                                                                                </div>
-                                                                                <p className="text-xs font-bold text-brand-dark-blue line-clamp-1">{pickup} → {destination}</p>
-                                                                            </div>
-                                                                            
+                                                                            <div className="space-y-1"><div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase"><span>Rute</span></div><p className="text-xs font-bold text-brand-dark-blue line-clamp-1">{pickup} → {dest}</p></div>
                                                                             <div className="flex items-end justify-between gap-4 pt-2 border-t border-gray-100">
-                                                                                <div>
-                                                                                    <p className="text-[10px] text-gray-400 font-bold uppercase">Harga Penawaran</p>
-                                                                                    <p className="text-lg font-black text-brand-green">Rp {priceStr}</p>
-                                                                                </div>
-                                                                                
+                                                                                <div><p className="text-[10px] text-gray-400 font-bold uppercase">Harga Penawaran</p><p className="text-lg font-black text-brand-green">Rp {price}</p></div>
                                                                                 {!isMine && isPending && (
                                                                                     <div className="flex gap-2">
-                                                                                        <button 
-                                                                                            onClick={() => handleAcceptProposal(msg)}
-                                                                                            className="px-4 py-2 bg-brand-green text-white rounded-xl text-xs font-bold shadow-sm hover:shadow-md transition-all active:scale-95"
-                                                                                        >Terima</button>
-                                                                                        <button 
-                                                                                            onClick={() => handleRejectProposal(msg)}
-                                                                                            className="px-4 py-2 bg-red-50 text-red-500 rounded-xl text-xs font-bold hover:bg-red-100 transition-all"
-                                                                                        >Tolak</button>
+                                                                                        <button onClick={() => handleAcceptProposal(msg)} className="px-4 py-2 bg-brand-green text-white rounded-xl text-xs font-bold shadow-sm hover:shadow-md transition-all active:scale-95">Terima</button>
+                                                                                        <button onClick={() => handleRejectProposal(msg)} className="px-4 py-2 bg-red-50 text-red-500 rounded-xl text-xs font-bold hover:bg-red-100 transition-all">Tolak</button>
                                                                                     </div>
                                                                                 )}
                                                                             </div>
                                                                             {!isPending && (
-                                                                                <div className={`mt-2 px-3 py-1.5 rounded-md text-xs font-bold text-center border uppercase tracking-wider ${isAccepted ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>
-                                                                                    {isAccepted ? 'Penawaran Diterima' : 'Penawaran Ditolak'}
-                                                                                </div>
+                                                                                <div className={`mt-2 px-3 py-1.5 rounded-md text-xs font-bold text-center border uppercase tracking-wider ${isAccepted ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}`}>{isAccepted ? 'Penawaran Diterima' : 'Penawaran Ditolak'}</div>
                                                                             )}
                                                                         </div>
                                                                     );
@@ -781,25 +719,76 @@ const UserChat = () => {
                                                         ) : isOrder ? (
                                                             <div className="bg-white p-3.5 rounded-xl border border-gray-100 shadow-[0_2px_8px_rgb(0,0,0,0.04)]">
                                                                 <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100">
-                                                                    <div className="w-8 h-8 bg-gradient-to-br from-brand-green to-emerald-600 text-white rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
-                                                                        <Bookmark size={14} />
-                                                                    </div>
+                                                                    <div className="w-8 h-8 bg-gradient-to-br from-brand-green to-emerald-600 text-white rounded-full flex items-center justify-center shadow-sm flex-shrink-0"><Bookmark size={14} /></div>
                                                                     <div>
                                                                         <span className="block font-black text-[11px] text-[#0a2540] uppercase tracking-wider leading-tight">Detail Pesanan</span>
                                                                         <span className="block text-[10px] text-gray-500 font-medium">{isMine ? 'Permintaan Terkirim' : 'Permintaan Baru'}</span>
                                                                     </div>
                                                                 </div>
-                                                                
                                                                 {(() => {
-                                                                    const text = displayContent || msg.content || '';
-                                                                    const isJastip = text.includes('Jasa Titip');
-                                                                    
-                                                                    const getVal = (regex) => {
-                                                                        const m = text.match(regex);
-                                                                        return m ? m[1].trim() : '-';
-                                                                    };
+                                                                    const text = displayContent || '';
+                                                                    const getVal = (reg) => { const m = text.match(reg); return m ? m[1].trim() : '-'; };
+                                                                    const isMarketplace = text.includes('MARKETPLACE');
+                                                                    const isJastip = text.includes('JASTIP');
 
-                                                                    if (isJastip) {
+                                                                    if (isMarketplace) {
+                                                                        const product = getVal(/\*Produk:\*\s*(.*)/);
+                                                                        const qty = getVal(/\*Jumlah:\*\s*(.*)/);
+                                                                        const method = getVal(/\*Metode:\*\s*(.*)/);
+                                                                        const total = getVal(/\*Total Harga:\*\s*(.*)/);
+                                                                        const nt = getVal(/\*Catatan:\*\s*(.*)/);
+                                                                        return (
+                                                                            <div className="space-y-4">
+                                                                                <div className="space-y-1">
+                                                                                    <p className="text-[10px] text-[#667781] font-bold uppercase tracking-widest">Produk</p>
+                                                                                    <p className="text-sm font-black text-[#0a2540] flex items-center gap-2">
+                                                                                        <Package size={16} className="text-brand-green" /> {product}
+                                                                                    </p>
+                                                                                </div>
+
+                                                                                <div className="grid grid-cols-2 gap-4 py-3 border-y border-gray-100">
+                                                                                    <div className="space-y-1">
+                                                                                        <p className="text-[10px] text-[#667781] font-bold uppercase tracking-widest">Jumlah</p>
+                                                                                        <p className="text-sm font-bold text-[#111b21] flex items-center gap-1.5"><ShoppingCart size={14} className="text-gray-400" /> {qty}</p>
+                                                                                    </div>
+                                                                                    <div className="space-y-1">
+                                                                                        <p className="text-[10px] text-[#667781] font-bold uppercase tracking-widest">Metode</p>
+                                                                                        <p className="text-sm font-bold text-[#111b21] flex items-center gap-1.5"><Truck size={14} className="text-gray-400" /> {method}</p>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div className="space-y-1">
+                                                                                    <p className="text-[10px] text-[#667781] font-bold uppercase tracking-widest">Total Harga</p>
+                                                                                    <p className="text-xl font-black text-brand-green flex items-center gap-2">
+                                                                                        <Wallet size={18} /> {total}
+                                                                                    </p>
+                                                                                </div>
+
+                                                                                {nt && nt !== '-' && (
+                                                                                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 italic text-[11px] text-gray-600 leading-relaxed">
+                                                                                        "{nt}"
+                                                                                    </div>
+                                                                                )}
+
+                                                                                <div className="space-y-2 pt-2">
+                                                                                    <button 
+                                                                                        onClick={() => navigate('/user/orders')}
+                                                                                        className="w-full py-2.5 bg-[#e1f5fe]/50 hover:bg-[#e1f5fe] text-[#0288d1] rounded-xl text-xs font-black uppercase tracking-widest border border-[#b3e5fc] transition-all active:scale-[0.98]"
+                                                                                    >
+                                                                                        Lihat Pesanan Saya
+                                                                                    </button>
+
+                                                                                    {isAccepted ? (
+                                                                                        <div className="px-3 py-2 bg-green-50 rounded-xl text-[10px] font-black text-green-600 text-center uppercase tracking-widest border border-green-200">Pesanan Diterima</div>
+                                                                                    ) : isRejected ? (
+                                                                                        <div className="px-3 py-2 bg-red-50 rounded-xl text-[10px] font-black text-red-600 text-center uppercase tracking-widest border border-red-200">Pesanan Ditolak</div>
+                                                                                    ) : (
+                                                                                        <div className="px-3 py-2 bg-brand-green/5 rounded-xl text-[10px] font-black text-brand-green text-center uppercase tracking-widest border border-brand-green/20 animate-pulse">Menunggu Konfirmasi</div>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        );
+                                                                    } else if (isJastip) {
                                                                         const barang = getVal(/🛒 \*Barang:\*\s*(.*)/);
                                                                         const harga = getVal(/💰 \*Harga Estimasi:\*\s*(.*)/) || getVal(/💰 \*Harga Barang:\*\s*(.*)/);
                                                                         const note = getVal(/📝 \*Catatan:\*\s*(.*)/) || getVal(/📝 \*Detail Tambahan:\*\s*(.*)/);

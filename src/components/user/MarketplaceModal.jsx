@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, MapPin, Package, ShoppingBag } from 'lucide-react';
+import { X, MapPin, Package, ShoppingBag, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../context/authContext';
 import api from '../../services/api';
+import { toast } from 'react-hot-toast';
 
 const MarketplaceModal = ({ isOpen, onClose, product }) => {
     const navigate = useNavigate();
@@ -10,9 +11,18 @@ const MarketplaceModal = ({ isOpen, onClose, product }) => {
 
     const [formData, setFormData] = useState({
         jumlah: 1,
-        metode: 'COD',
+        metode: product && product.category === 'Barang' ? 'COD' : 'Delivery',
         catatan: ''
     });
+
+    React.useEffect(() => {
+        if (product) {
+            setFormData(prev => ({
+                ...prev,
+                metode: product.category === 'Barang' ? 'COD' : 'Delivery'
+            }));
+        }
+    }, [product]);
 
     if (!isOpen || !product) return null;
 
@@ -25,68 +35,44 @@ const MarketplaceModal = ({ isOpen, onClose, product }) => {
         e.preventDefault();
 
         const total = formData.jumlah * product.price;
-
-        if (formData.metode === 'Delivery') {
-            // Redirect to Antar Jemput page and pass product details in state
-            navigate('/user/antar-jemput', {
-                state: {
-                    deliveryRequest: {
-                        product: product.name,
-                        seller: product.seller,
-                        price: product.price,
-                        quantity: formData.jumlah,
-                        total,
-                        notes: formData.catatan
-                    }
-                }
-            });
-            onClose();
-            return;
-        }
-
-        // COD (Pesan Antar) Flow
+        const userId = user?.id;
+        const sellerId = product.seller_id;
+        
         try {
-            // 1. Create Order in Backend
-            await api.post('/user/orders', {
+            // Create Order in Backend
+            const response = await api.post('/user/orders', {
                 type: 'Marketplace',
-                total,
+                shipping_method: formData.metode,
+                total_price: total,
+                seller_id: sellerId,
+                product_id: product.id,
+                quantity: formData.jumlah,
                 items: [{ id: product.id, name: product.name, quantity: formData.jumlah }],
                 notes: formData.catatan
             });
 
-            // 2. Draft Message for Chat
-            const textArea = `Halo ${product.seller}, saya ingin memesan:
-*Produk:* ${product.name}
-*Jumlah:* ${formData.jumlah} pcs
-*Total Harga:* Rp ${total.toLocaleString('id-ID')}
-*Metode:* ${formData.metode}
-*Catatan:* ${formData.catatan || '-'}
+            toast.success("Pesanan berhasil dibuat! Menghubungkan ke penjual...");
 
-Mohon konfirmasinya. Terima kasih.`;
-
-            // Redirect ke Chat Room Internal 
-            const userId = user?.id;
-            const sellerId = product.seller_id;
-            const ids = [userId, sellerId].sort((a, b) => a - b);
+             // Navigate to Chat Room
+            const ids = [userId, sellerId].sort((a, b) => Number(a) - Number(b));
             const roomId = `room_${ids[0]}_${ids[1]}`;
-
+            
             navigate(`/user/chat/${roomId}`, {
                 state: {
                     partnerName: product.seller,
-                    partnerId: sellerId,
-                    initialMessage: textArea
+                    partnerId: sellerId
                 }
             });
 
-            alert("Pesanan berhasil dibuat! Anda akan dialihkan ke chat penjual.");
             onClose();
         } catch (error) {
             console.error('Error creating order:', error);
-            alert('Gagal membuat pesanan. Silakan coba lagi.');
+            toast.error(error.response?.data?.message || 'Gagal membuat pesanan.');
         }
     };
 
     const isJasa = product.category === 'Jasa';
+    const isMakanan = product.category === 'Makanan';
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
@@ -111,14 +97,22 @@ Mohon konfirmasinya. Terima kasih.`;
 
                     {/* Product Info */}
                     <div className="bg-[#f5efe6] p-4 rounded-xl flex gap-4 items-center border border-[#e8ddcd]">
-                        <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center text-3xl shadow-sm">
-                            {product.emoji}
+                        <div className="w-20 h-20 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-sm border border-black/5">
+                            {product.image_url ? (
+                                <img 
+                                    src={`${product.image_url}`} 
+                                    alt={product.name} 
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <span className="text-4xl">{product.emoji || '📦'}</span>
+                            )}
                         </div>
                         <div>
-                            <p className="font-bold text-brand-dark-blue text-lg">{product.name}</p>
-                            <p className="text-sm font-semibold text-brand-green">Rp {product.price.toLocaleString('id-ID')} {isJasa ? '' : '/ pcs'}</p>
-                            <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                                <Package size={12} /> Penjual: {product.seller}
+                            <p className="font-bold text-brand-dark-blue text-lg leading-tight mb-1">{product.name}</p>
+                            <p className="text-base font-black text-brand-green">Rp {product.price.toLocaleString('id-ID')} {isJasa ? '' : '/ pcs'}</p>
+                            <p className="text-[11px] text-gray-500 mt-1.5 flex items-center gap-1.5 font-bold uppercase tracking-wider">
+                                <Package size={12} className="text-brand-green" /> Penjual: {product.seller}
                             </p>
                         </div>
                     </div>
@@ -141,30 +135,47 @@ Mohon konfirmasinya. Terima kasih.`;
 
                     {/* Metode */}
                     <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-gray-700">Metode Pembelian (Hanya COD & Delivery yang tersedia)</label>
-                        <div className="grid grid-cols-2 gap-3">
-                            <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${formData.metode === 'COD' ? 'border-brand-green bg-brand-green/5' : 'border-gray-200 hover:border-brand-green/50'}`}>
-                                <input
-                                    type="radio"
-                                    name="metode"
-                                    value="COD"
-                                    checked={formData.metode === 'COD'}
-                                    onChange={handleChange}
-                                    className="text-brand-green focus:ring-brand-green"
-                                />
-                                <span className="font-bold text-brand-dark-blue text-sm">COD (Pesan Antar)</span>
-                            </label>
-                            <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${formData.metode === 'Delivery' ? 'border-brand-green bg-brand-green/5' : 'border-gray-200 hover:border-brand-green/50'}`}>
-                                <input
-                                    type="radio"
-                                    name="metode"
-                                    value="Delivery"
-                                    checked={formData.metode === 'Delivery'}
-                                    onChange={handleChange}
-                                    className="text-brand-green focus:ring-brand-green"
-                                />
-                                <span className="font-bold text-brand-dark-blue text-sm">Delivery (Kirim Reguler)</span>
-                            </label>
+                        <label className="block text-sm font-semibold text-gray-700">Metode Pengiriman</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {product.category === 'Barang' && (
+                                <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${formData.metode === 'COD' ? 'border-brand-green bg-brand-green/5' : 'border-gray-200 hover:bg-gray-50'}`}>
+                                    <input
+                                        type="radio"
+                                        name="metode"
+                                        value="COD"
+                                        checked={formData.metode === 'COD'}
+                                        onChange={handleChange}
+                                        className="text-brand-green focus:ring-brand-green"
+                                    />
+                                    <span className="font-bold text-brand-dark-blue text-sm">COD (Barang)</span>
+                                </label>
+                            )}
+                            {(isMakanan || isJasa) && (
+                                <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${formData.metode === 'Delivery' ? 'border-brand-green bg-brand-green/5' : 'border-gray-200 hover:bg-gray-50'}`}>
+                                    <input
+                                        type="radio"
+                                        name="metode"
+                                        value="Delivery"
+                                        checked={formData.metode === 'Delivery'}
+                                        onChange={handleChange}
+                                        className="text-brand-green focus:ring-brand-green"
+                                    />
+                                    <span className="font-bold text-brand-dark-blue text-sm">Delivery (Kurir)</span>
+                                </label>
+                            )}
+                            {isMakanan && (
+                                <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${formData.metode === 'Takeaway' ? 'border-brand-green bg-brand-green/5' : 'border-gray-200 hover:bg-gray-50'}`}>
+                                    <input
+                                        type="radio"
+                                        name="metode"
+                                        value="Takeaway"
+                                        checked={formData.metode === 'Takeaway'}
+                                        onChange={handleChange}
+                                        className="text-brand-green focus:ring-brand-green"
+                                    />
+                                    <span className="font-bold text-brand-dark-blue text-sm">Takeaway (Ambil)</span>
+                                </label>
+                            )}
                         </div>
                     </div>
 
@@ -190,7 +201,7 @@ Mohon konfirmasinya. Terima kasih.`;
 
                     <button
                         type="submit"
-                        className="w-full bg-[#185c37] hover:bg-[#124429] text-white font-bold text-lg py-3.5 rounded-xl mt-4 transition-colors shadow-lg shadow-green-900/20"
+                        className="w-full bg-[#185c37] hover:bg-[#124429] text-white font-bold text-lg py-3.5 rounded-xl mt-4 transition-colors shadow-lg shadow-green-900/20 active:scale-[0.98]"
                     >
                         Pesan & Bayar
                     </button>

@@ -3,15 +3,15 @@ const db = require('../config/db');
 exports.createBroadcast = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { pickup_location, destination_location, pickup_time, notes } = req.body;
+        const { pickup_location, destination_location, pickup_time, notes, category, order_id } = req.body;
 
         if (!pickup_location || !destination_location) {
             return res.status(400).json({ message: 'Pickup and destination are required' });
         }
 
         const [result] = await db.execute(
-            'INSERT INTO broadcasts (user_id, pickup_location, destination_location, pickup_time, notes) VALUES (?, ?, ?, ?, ?)',
-            [userId, pickup_location, destination_location, pickup_time, notes]
+            'INSERT INTO broadcasts (user_id, pickup_location, destination_location, pickup_time, notes, category, order_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [userId, pickup_location, destination_location, pickup_time, notes, category || 'Antar Jemput', order_id || null]
         );
 
         res.status(201).json({ 

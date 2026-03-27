@@ -50,7 +50,7 @@ const JastipModal = ({ isOpen, onClose, jastip }) => {
                         <div className="flex items-center gap-4 mb-8">
                             <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-white shadow-md">
                                 <img 
-                                    src={jastip?.driverPhoto ? (jastip.driverPhoto.startsWith('http') ? jastip.driverPhoto : `http://localhost:5000${jastip.driverPhoto}`) : `https://i.pravatar.cc/150?u=${jastip?.driver_id || jastip?.driverName}`} 
+                                    src={jastip?.driverPhoto ? (jastip.driverPhoto.startsWith('http') ? jastip.driverPhoto : `${jastip.driverPhoto}`) : `https://i.pravatar.cc/150?u=${jastip?.driver_id || jastip?.driverName}`} 
                                     alt={jastip?.driverName} 
                                     className="w-full h-full object-cover"
                                     onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${jastip?.driverName}&background=1e6f85&color=fff&size=128`; }}

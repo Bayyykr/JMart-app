@@ -5,7 +5,7 @@ import { io } from 'socket.io-client';
 import { useAuth } from '../../context/authContext';
 import api from '../../services/api';
 
-const socket = io('http://localhost:5000');
+const socket = io('');
 
 const ChatRoom = () => {
     const { id } = useParams(); // e.g. "driver-5" or room UUID
@@ -200,7 +200,7 @@ const ChatRoom = () => {
                             <div className="relative">
                                 {partnerImage ? (
                                     <img
-                                        src={partnerImage.startsWith('http') ? partnerImage : `http://localhost:5000${partnerImage}`}
+                                        src={partnerImage.startsWith('http') ? partnerImage : `${partnerImage}`}
                                         alt={partnerName}
                                         className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
                                         onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
@@ -279,11 +279,11 @@ const ChatRoom = () => {
                                         <>
                                             {msg.message_type === 'image' ? (
                                                 <div className="space-y-2">
-                                                    <img src={`http://localhost:5000${msg.file_url}`} alt="Chat Attachment" className="max-w-full rounded-xl cursor-pointer hover:opacity-90 transition-opacity" onClick={() => window.open(`http://localhost:5000${msg.file_url}`)} />
+                                                    <img src={`${msg.file_url}`} alt="Chat Attachment" className="max-w-full rounded-xl cursor-pointer hover:opacity-90 transition-opacity" onClick={() => window.open(`${msg.file_url}`)} />
                                                     {msg.content && <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>}
                                                 </div>
                                             ) : msg.message_type === 'file' ? (
-                                                <a href={`http://localhost:5000${msg.file_url}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2 bg-black/5 rounded-xl hover:bg-black/10 transition-colors">
+                                                <a href={`${msg.file_url}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2 bg-black/5 rounded-xl hover:bg-black/10 transition-colors">
                                                     <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-brand-green shadow-sm">
                                                         <Paperclip size={20} />
                                                     </div>

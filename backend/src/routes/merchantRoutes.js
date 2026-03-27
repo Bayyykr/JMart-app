@@ -29,6 +29,8 @@ router.post('/onboard', upload.fields([
     { name: 'selfie_file', maxCount: 1 }
 ]), merchantController.submitOnboarding);
 router.get('/status', merchantController.getStatus);
+router.get('/profile', merchantController.getProfile);
+router.put('/profile', upload.single('store_image'), merchantController.updateProfile);
 router.get('/stats', merchantController.getStats);
 router.get('/products', merchantController.getProducts);
 router.post('/products', upload.single('image'), merchantController.addProduct);
@@ -37,5 +39,8 @@ router.delete('/products/:id', merchantController.deleteProduct);
 
 router.get('/orders', merchantController.getOrders);
 router.put('/orders/:id/status', merchantController.updateOrderStatus);
+router.put('/orders/:id/accept', merchantController.acceptOrder);
+router.put('/orders/:id/reject', merchantController.rejectOrder);
+router.post('/orders/:id/sewa-driver', merchantController.sewaDriver);
 
 module.exports = router;

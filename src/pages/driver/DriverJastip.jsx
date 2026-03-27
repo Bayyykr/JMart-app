@@ -5,7 +5,7 @@ import TopLoadingBar from '../../components/ui/TopLoadingBar';
 import toast from 'react-hot-toast';
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:5000');
+const socket = io('');
 
 const DriverJastip = () => {
     const [jastips, setJastips] = useState([]);

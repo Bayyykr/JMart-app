@@ -7,6 +7,7 @@ const marketplaceController = require('../controllers/marketplaceController');
 const orderController = require('../controllers/orderController');
 const dashboardController = require('../controllers/dashboardController');
 const broadcastController = require('../controllers/broadcastController');
+const reportController = require('../controllers/reportController');
 
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
@@ -31,12 +32,23 @@ router.post('/broadcasts/reject-offer', authMiddleware, broadcastController.reje
 router.get('/dashboard/stats', authMiddleware, dashboardController.getStats);
 router.get('/dashboard/recent-orders', authMiddleware, dashboardController.getRecentOrders);
 
+// Report endpoints
+router.post('/reports', authMiddleware, reportController.submitReport);
+router.get('/reports/my-reports', authMiddleware, reportController.getMyReports);
+
 // User profile endpoint — returns fresh user data including profile_image_url
 router.get('/me', authMiddleware, async (req, res) => {
     const userRepository = require('../repositories/UserRepository');
     try {
         const user = await userRepository.findById(req.user.id);
         if (!user) return res.status(404).json({ message: 'User not found' });
+        
+        // Strictly check for active status (1). Anything else (0, null, etc) is considered deactivated.
+        if (user.is_active != 1) {
+            console.log(`DEACTIVATED profile check for user ID ${req.user.id} (status: ${user.is_active})`);
+            return res.status(403).json({ message: 'DEACTIVATED' });
+        }
+
         res.json(user);
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });

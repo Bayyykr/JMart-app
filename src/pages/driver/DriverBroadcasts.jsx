@@ -3,7 +3,7 @@ import { useAuth } from '../../context/authContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import TopLoadingBar from '../../components/ui/TopLoadingBar';
-import { ShoppingBag, MapPin, Clock, Search, Send, User, ChevronRight } from 'lucide-react';
+import { ShoppingBag, MapPin, Clock, Search, Send, User, ChevronRight, MessageCircle } from 'lucide-react';
 
 const DriverBroadcasts = () => {
     const { user } = useAuth();
@@ -58,6 +58,14 @@ const DriverBroadcasts = () => {
         }
     };
 
+    const handleChatRedirect = (userId) => {
+        const myId = user.id;
+        const minId = Math.min(myId, userId);
+        const maxId = Math.max(myId, userId);
+        const roomId = `room_${minId}_${maxId}`;
+        window.location.href = `/driver/chat?room=${roomId}&user=${userId}`;
+    };
+
     return (
         <div className="p-8 bg-[#F8FAFC] min-h-screen">
             <TopLoadingBar isLoading={isLoading} />
@@ -65,7 +73,7 @@ const DriverBroadcasts = () => {
             <div className="max-w-7xl mx-auto">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
                     <div>
-                        <h1 className="text-4xl font-extrabold text-brand-dark-blue tracking-tight mb-2">Broadcast Antar-Jemput</h1>
+                        <h1 className="text-4xl font-extrabold text-brand-dark-blue tracking-tight mb-2">Peluang Kerja Driver</h1>
                         <div className="flex items-center gap-2 text-gray-500">
                             <div className="w-2 h-2 rounded-full bg-brand-green animate-pulse"></div>
                             <p className="text-sm font-medium">Memantau permintaan aktif di sekitarmu...</p>
@@ -84,16 +92,16 @@ const DriverBroadcasts = () => {
                                     <span className="bg-brand-green/10 text-brand-green px-3 py-1 rounded-full text-xs font-bold">{availableBroadcasts.length} Post</span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-gray-500 text-sm font-medium">Area Anda</span>
-                                    <span className="text-brand-dark-blue text-xs font-bold">Banyuwangi</span>
+                                    <span className="text-gray-500 text-sm font-medium">Status</span>
+                                    <span className="text-brand-green text-xs font-bold">Aktif</span>
                                 </div>
                             </div>
                         </div>
 
                         <div className="bg-brand-dark-blue p-6 rounded-[24px] shadow-xl text-white relative overflow-hidden">
                             <div className="relative z-10">
-                                <h3 className="text-lg font-bold mb-2">Tips Driver</h3>
-                                <p className="text-xs text-blue-100 leading-relaxed opacity-80">Berikan harga bersaing untuk meningkatkan peluang dipilih oleh pelanggan.</p>
+                                <h3 className="text-lg font-bold mb-2">Tips Kerja</h3>
+                                <p className="text-xs text-blue-100 leading-relaxed opacity-80">Untuk kategori Makanan/Jasa, hubungi pelanggan via chat untuk koordinasi cepat.</p>
                             </div>
                             <div className="absolute -bottom-4 -right-4 opacity-10">
                                 <ShoppingBag size={80} />
@@ -108,7 +116,7 @@ const DriverBroadcasts = () => {
                                 <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
                                     <Search size={32} className="text-gray-300" />
                                 </div>
-                                <h3 className="text-lg font-bold text-gray-700 mb-2">Belum ada broadcast baru</h3>
+                                <h3 className="text-lg font-bold text-gray-700 mb-2">Belum ada peluang baru</h3>
                                 <p className="text-gray-400 text-sm mb-6">Tunggu sebentar atau coba segarkan halaman.</p>
                                 <button 
                                     onClick={fetchAvailableBroadcasts}
@@ -128,7 +136,7 @@ const DriverBroadcasts = () => {
                                                         <User size={20} />
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-tighter">Pelanggan</p>
+                                                        <p className="text-xs font-black text-brand-green uppercase tracking-widest leading-none mb-1">{bc.category || 'Antar Jemput'}</p>
                                                         <p className="text-sm font-bold text-brand-dark-blue capitalize">{bc.user_name}</p>
                                                     </div>
                                                 </div>
@@ -143,24 +151,18 @@ const DriverBroadcasts = () => {
                                                     
                                                     <div className="mb-4 relative">
                                                         <div className="absolute -left-[24px] top-1 w-2.5 h-2.5 rounded-full bg-brand-green border-2 border-white shadow-sm"></div>
-                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Jemput</p>
+                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Dari</p>
                                                         <p className="text-sm font-bold text-brand-dark-blue mt-0.5 line-clamp-1">{bc.pickup_location}</p>
                                                     </div>
 
                                                     <div className="relative">
                                                         <div className="absolute -left-[24px] top-1 w-2.5 h-2.5 rounded-full bg-brand-orange border-2 border-white shadow-sm"></div>
-                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Tujuan</p>
+                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Ke</p>
                                                         <p className="text-sm font-bold text-brand-dark-blue mt-0.5 line-clamp-1">{bc.destination_location}</p>
                                                     </div>
                                                 </div>
 
                                                 <div className="flex flex-wrap gap-2">
-                                                    {bc.pickup_time && (
-                                                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-green/5 text-brand-green rounded-lg border border-brand-green/10">
-                                                            <Clock size={12} className="font-bold" />
-                                                            <span className="text-[10px] font-extrabold uppercase">{bc.pickup_time}</span>
-                                                        </div>
-                                                    )}
                                                     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-500 rounded-lg border border-gray-100 italic flex-1">
                                                         <span className="text-[10px] font-medium truncate">"{bc.notes || 'Tidak ada catatan'}"</span>
                                                     </div>
@@ -168,7 +170,14 @@ const DriverBroadcasts = () => {
                                             </div>
 
                                             <div className="pt-6 border-t border-gray-50 flex items-center gap-2">
-                                                {bc.already_bid > 0 ? (
+                                                {bc.category && bc.category !== 'Antar Jemput' ? (
+                                                    <button 
+                                                        onClick={() => handleChatRedirect(bc.user_id)}
+                                                        className="w-full h-12 flex items-center justify-center gap-2 bg-brand-green text-white rounded-2xl hover:bg-brand-dark-blue transition-all shadow-lg shadow-brand-green/10 font-bold text-sm uppercase tracking-widest"
+                                                    >
+                                                        <MessageCircle size={18} /> Chat Sekarang
+                                                    </button>
+                                                ) : bc.already_bid > 0 ? (
                                                     <div className="flex-1 bg-brand-green/10 text-brand-green px-4 py-3 rounded-2xl text-center font-bold text-xs uppercase tracking-widest border border-brand-green/20">
                                                         Penawaran Telah Terkirim
                                                     </div>
@@ -179,17 +188,14 @@ const DriverBroadcasts = () => {
                                                             <input 
                                                                 type="number"
                                                                 placeholder="Harga"
-                                                                className="w-full h-12 bg-gray-50 border border-gray-100 rounded-2xl pl-10 pr-4 text-sm font-bold text-brand-dark-blue outline-none focus:ring-2 focus:ring-brand-green/20 focus:bg-white transition-all transition-all"
+                                                                className="w-full h-12 bg-gray-50 border border-gray-100 rounded-2xl pl-10 pr-4 text-sm font-bold text-brand-dark-blue outline-none focus:ring-2 focus:ring-brand-green/20 focus:bg-white transition-all"
                                                                 value={offerPrices[bc.id] || ''}
                                                                 onChange={(e) => setOfferPrices({ ...offerPrices, [bc.id]: e.target.value })}
                                                             />
                                                         </div>
                                                         <button 
-                                                            disabled={isSubmitting === bc.id || bc.already_bid > 0}
-                                                            onClick={() => {
-                                                                setIsSubmitting(bc.id);
-                                                                handleMakeOffer(bc.id);
-                                                            }}
+                                                            disabled={isSubmitting === bc.id}
+                                                            onClick={() => handleMakeOffer(bc.id)}
                                                             className="h-12 w-12 flex items-center justify-center bg-brand-green text-white rounded-2xl hover:bg-brand-dark-blue transition-all shadow-lg shadow-brand-green/10 active:scale-95 disabled:opacity-50"
                                                         >
                                                             <Send size={18} />

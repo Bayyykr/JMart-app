@@ -21,7 +21,7 @@ const DriverOnboarding = () => {
     const [status, setStatus] = useState('loading');
     const [formData, setFormData] = useState({
         ktp_number: '',
-        vehicle_type: 'motor',
+        vehicle_type: 'Motor',
         vehicle_model: '', // New field
         plate_prefix: '',
         plate_number: '',
@@ -282,8 +282,8 @@ const DriverOnboarding = () => {
                                                     value={formData.vehicle_type}
                                                     onChange={(e) => setFormData({ ...formData, vehicle_type: e.target.value })}
                                                 >
-                                                    <option value="motor">Motor</option>
-                                                    <option value="mobil">Mobil</option>
+                                                    <option value="Motor">Motor</option>
+                                                    <option value="Mobil">Mobil</option>
                                                 </select>
                                             </div>
                                             <div className="space-y-2 lg:col-span-2">

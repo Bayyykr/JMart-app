@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/authContext';
+import { useDriver } from '../../context/DriverContext';
 import StatCard from '../../components/user/StatCard';
 import ActionCard from '../../components/user/ActionCard';
 import api from '../../services/api';
@@ -17,26 +18,21 @@ import {
     MessageSquare,
     Wallet
 } from 'lucide-react';
-import io from 'socket.io-client';
-
-const socket = io('http://localhost:5000');
 
 const DriverDashboard = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [isOnline, setIsOnline] = useState(false);
+    const { isOnline, toggleOnline, profile, loading: driverLoading, socket } = useDriver();
     const [location, setLocation] = useState({ lat: null, lng: null });
     const [stats, setStats] = useState({ total_trips: 0, completed_orders: 0, rating: 5.0, total_jasa_titip: 0, revenue: 0 });
     const [orders, setOrders] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [profile, setProfile] = useState(null);
 
     useEffect(() => {
         const loadDashboardData = async () => {
             setIsLoading(true);
             try {
                 await Promise.all([
-                    fetchDriverStatus(),
                     fetchDriverStats(),
                     fetchDriverOrders()
                 ]);
@@ -46,42 +42,6 @@ const DriverDashboard = () => {
         };
         loadDashboardData();
     }, []);
-
-    const fetchDriverStatus = async () => {
-        try {
-            const res = await api.get('/driver/status');
-            const prof = res.data.profile;
-            setProfile(prof);
-            setIsOnline(prof?.is_online || false);
-            setLocation({
-                lat: prof?.latitude,
-                lng: prof?.longitude
-            });
-
-            // If already online in DB, tell the socket
-            if (prof?.is_online) {
-                navigator.geolocation.getCurrentPosition(async (pos) => {
-                    const { latitude, longitude } = pos.coords;
-                    const areaName = await reverseGeocode(latitude, longitude);
-                    socket.emit('driver_online', {
-                        userId: user.id,
-                        name: user.name,
-                        vehicle_plate: prof.vehicle_plate,
-                        vehicle_model: prof.vehicle_model,
-                        car: prof.vehicle_model ? `${prof.vehicle_model} - ${prof.vehicle_plate}` : prof.vehicle_plate,
-                        profile_image: user?.profile_image_url,
-                        rating: prof.rating || 5.0,
-                        trips: prof.total_trips || 0,
-                        lat: latitude,
-                        lng: longitude,
-                        area: areaName
-                    });
-                });
-            }
-        } catch (err) {
-            console.error("Error fetching status:", err);
-        }
-    };
 
     const fetchDriverStats = async () => {
         try {
@@ -128,81 +88,6 @@ const DriverDashboard = () => {
         }
     };
 
-    const toggleStatus = async () => {
-        try {
-            const newStatus = !isOnline;
-            
-            // Immediate UI feedback
-            setIsOnline(newStatus);
-
-            if (newStatus) {
-                // Emit immediately with last known profile data so it doesn't delay if tab is switched
-                socket.emit('driver_online', {
-                    userId: user.id,
-                    name: user.name,
-                    vehicle_plate: profile?.vehicle_plate,
-                    vehicle_model: profile?.vehicle_model,
-                    car: profile?.vehicle_model ? `${profile.vehicle_model} - ${profile.vehicle_plate}` : profile?.vehicle_plate,
-                    profile_image: user?.profile_image_url,
-                    rating: profile?.rating || 5.0,
-                    trips: profile?.total_trips || 0,
-                    lat: location.lat || profile?.latitude,
-                    lng: location.lng || profile?.longitude,
-                    area: profile?.area || 'Area Terdeteksi'
-                });
-
-                // Get fresh location AND THEN update DB/Socket quietly
-                navigator.geolocation.getCurrentPosition(async (pos) => {
-                    const { latitude, longitude } = pos.coords;
-                    const areaName = await reverseGeocode(latitude, longitude);
-
-                    await api.put('/driver/status', { 
-                        is_online: true, 
-                        area: areaName,
-                        latitude,
-                        longitude
-                    });
-
-                    socket.emit('update_location', {
-                        userId: user.id,
-                        lat: latitude,
-                        lng: longitude,
-                        area: areaName
-                    });
-                }, (err) => {
-                    console.error('Geolocation update delayed or failed:', err);
-                }, { enableHighAccuracy: true });
-            } else {
-                await api.put('/driver/status', { is_online: false });
-                socket.emit('driver_offline', user.id);
-            }
-        } catch (err) {
-            console.error("Error updating status:", err);
-            setIsOnline(!isOnline); // Revert on failure
-            alert("Gagal memperbarui status");
-        }
-    };
-
-    useEffect(() => {
-        let watchId = null;
-        if (isOnline && navigator.geolocation) {
-            watchId = navigator.geolocation.watchPosition(async (pos) => {
-                const { latitude, longitude } = pos.coords;
-                setLocation({ lat: latitude, lng: longitude });
-                const areaName = await reverseGeocode(latitude, longitude);
-                socket.emit('update_location', {
-                    userId: user.id,
-                    lat: latitude,
-                    lng: longitude,
-                    area: areaName
-                });
-            }, (err) => console.error(err), { enableHighAccuracy: true });
-        }
-        return () => {
-            if (watchId) navigator.geolocation.clearWatch(watchId);
-        };
-    }, [isOnline, user.id]);
-
     const updateLocation = () => {
         if (!navigator.geolocation) {
             alert("Geolocation tidak didukung browser Anda");
@@ -218,7 +103,9 @@ const DriverDashboard = () => {
                 // but socket handles real-time
                 await api.put('/driver/location', { latitude, longitude, area: areaName });
                 setLocation({ lat: latitude, lng: longitude });
-                socket.emit('update_location', { userId: user.id, lat: latitude, lng: longitude, area: areaName });
+                if (socket) {
+                    socket.emit('update_location', { userId: user.id, lat: latitude, lng: longitude, area: areaName });
+                }
                 alert("Lokasi diperbarui!");
             } catch (err) {
                 alert("Gagal memperbarui lokasi");
@@ -243,7 +130,7 @@ const DriverDashboard = () => {
 
                 <div className="flex items-center gap-4">
                     <button
-                        onClick={toggleStatus}
+                        onClick={toggleOnline}
                         className={`flex items-center gap-3 px-6 py-2.5 rounded-2xl shadow-lg transition-all font-bold text-sm ${isOnline
                             ? 'bg-brand-green text-white hover:opacity-90'
                             : 'bg-white text-gray-400 border border-gray-100'

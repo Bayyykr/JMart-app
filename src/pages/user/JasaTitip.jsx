@@ -5,7 +5,7 @@ import TopLoadingBar from '../../components/ui/TopLoadingBar';
 import JastipModal from '../../components/user/JastipModal';
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:5000');
+const socket = io('');
 
 const JasaTitip = () => {
     const [jastips, setJastips] = useState([]);
@@ -67,7 +67,7 @@ const JasaTitip = () => {
                             <div className="flex gap-4 items-center">
                                 <div className="w-12 h-12 rounded-full bg-brand-light-blue flex items-center justify-center text-white font-bold text-lg overflow-hidden border-2 border-white shadow-sm">
                                     <img 
-                                        src={jastip.driverPhoto ? (jastip.driverPhoto.startsWith('http') ? jastip.driverPhoto : `http://localhost:5000${jastip.driverPhoto}`) : `https://i.pravatar.cc/150?u=${jastip.driver_id || jastip.driverName}`} 
+                                        src={jastip.driverPhoto ? (jastip.driverPhoto.startsWith('http') ? jastip.driverPhoto : `${jastip.driverPhoto}`) : `https://i.pravatar.cc/150?u=${jastip.driver_id || jastip.driverName}`} 
                                         alt={jastip.driverName} 
                                         className="w-full h-full object-cover" 
                                         onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${jastip.driverName}&background=1e6f85&color=fff&size=128`; }}

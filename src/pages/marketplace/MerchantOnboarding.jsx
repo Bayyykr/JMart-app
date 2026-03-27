@@ -22,9 +22,14 @@ const MerchantOnboarding = () => {
     const [status, setStatus] = useState('loading');
     const [formData, setFormData] = useState({
         store_name: '',
-        store_address: '',
+        village: '',
+        district: '',
+        city: '',
+        full_address: '',
         ktp_number: '',
-        product_description: ''
+        product_description: '',
+        latitude: null,
+        longitude: null
     });
     const [files, setFiles] = useState({
         ktp_file: null,
@@ -43,7 +48,25 @@ const MerchantOnboarding = () => {
 
     useEffect(() => {
         checkStatus();
+        fetchLocation();
     }, []);
+
+    const fetchLocation = () => {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setFormData(prev => ({
+                        ...prev,
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    }));
+                },
+                (error) => {
+                    console.log('Location access denied or unavailable', error);
+                }
+            );
+        }
+    };
 
     const checkStatus = async () => {
         try {
@@ -81,15 +104,20 @@ const MerchantOnboarding = () => {
         try {
             const submitData = new FormData();
             submitData.append('store_name', formData.store_name);
-            submitData.append('store_address', formData.store_address);
+            submitData.append('village', formData.village);
+            submitData.append('district', formData.district);
+            submitData.append('city', formData.city);
+            submitData.append('full_address', formData.full_address);
             submitData.append('ktp_number', formData.ktp_number);
             submitData.append('product_description', formData.product_description);
+            if (formData.latitude && formData.longitude) {
+                submitData.append('latitude', formData.latitude);
+                submitData.append('longitude', formData.longitude);
+            }
             submitData.append('ktp_file', files.ktp_file);
             submitData.append('selfie_file', files.selfie_file);
 
-            await api.post('/merchant/onboard', submitData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            await api.post('/merchant/onboard', submitData);
 
             setMessage('Data berhasil dikirim! Mohon tunggu verifikasi admin.');
             setStatus('pending');
@@ -285,13 +313,48 @@ const MerchantOnboarding = () => {
                                                 />
                                             </div>
                                             <div className="space-y-2 lg:col-span-2">
-                                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Alamat Lengkap Toko</label>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                                    <div className="space-y-2">
+                                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Desa</label>
+                                                        <input
+                                                            type="text"
+                                                            className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-brand-green/20 outline-none font-bold text-gray-700 placeholder:text-gray-300 text-sm"
+                                                            placeholder="Sumbersari"
+                                                            value={formData.village}
+                                                            onChange={(e) => setFormData({ ...formData, village: e.target.value })}
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Kecamatan</label>
+                                                        <input
+                                                            type="text"
+                                                            className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-brand-green/20 outline-none font-bold text-gray-700 placeholder:text-gray-300 text-sm"
+                                                            placeholder="Sumbersari"
+                                                            value={formData.district}
+                                                            onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Kabupaten</label>
+                                                        <input
+                                                            type="text"
+                                                            className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-brand-green/20 outline-none font-bold text-gray-700 placeholder:text-gray-300 text-sm"
+                                                            placeholder="Jember"
+                                                            value={formData.city}
+                                                            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                                            required
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Detail Alamat (Jalan/No)</label>
                                                 <textarea
                                                     className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-brand-green/20 outline-none font-bold text-gray-700 placeholder:text-gray-300 text-sm resize-none"
-                                                    placeholder="Jl. Merdeka No. 123, Kelurahan, Kecamatan..."
+                                                    placeholder="Jl. Kalimantan No. 37, RT 01 RW 02"
                                                     rows="2"
-                                                    value={formData.store_address}
-                                                    onChange={(e) => setFormData({ ...formData, store_address: e.target.value })}
+                                                    value={formData.full_address}
+                                                    onChange={(e) => setFormData({ ...formData, full_address: e.target.value })}
                                                     required
                                                 />
                                             </div>
@@ -308,6 +371,25 @@ const MerchantOnboarding = () => {
                                                         required
                                                     />
                                                 </div>
+                                                {formData.latitude && (
+                                                    <div className="flex items-center gap-2 mt-2 text-xs text-brand-green font-bold">
+                                                        <MapPin size={14} /> Koordinat lokasi Anda berhasil dicatat secara otomatis.
+                                                    </div>
+                                                )}
+                                                {!formData.latitude && (
+                                                    <div className="flex flex-col gap-2 mt-2">
+                                                        <div className="flex items-center gap-2 text-xs text-brand-orange font-bold">
+                                                            <MapPin size={14} /> Koordinat toko akan menggunakan default sistem. Pastikan untuk mengizinkan akses lokasi.
+                                                        </div>
+                                                        <button 
+                                                            type="button" 
+                                                            onClick={fetchLocation} 
+                                                            className="text-white bg-brand-dark-blue px-3 py-1.5 rounded-lg text-[10px] w-fit font-bold shadow hover:bg-brand-dark-blue/80 transition-colors"
+                                                        >
+                                                            Request Ulang Akses Lokasi
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

@@ -15,32 +15,42 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
 
 exports.getProducts = async (req, res) => {
     try {
-        const { category, lat, lng } = req.query;
-        console.log(`[Marketplace] Fetching - Category: ${category}, Lat: ${lat}, Lng: ${lng}`);
+        const { category, lat, lng, regency } = req.query;
+        console.log(`[Marketplace] Fetching - Category: ${category}, Lat: ${lat}, Lng: ${lng}, Regency: ${regency}`);
 
-        let query = 'SELECT * FROM products';
+        let query = `
+            SELECT p.*, mp.latitude as merchant_lat, mp.longitude as merchant_lng, mp.city
+            FROM products p
+            LEFT JOIN merchant_profiles mp ON p.seller_id = mp.user_id
+            WHERE 1=1
+        `;
         const params = [];
 
         if (category && category !== 'Semua') {
-            query += ' WHERE category = ?';
+            query += ' AND p.category = ?';
             params.push(category);
         }
 
-        const [rows] = await db.query(query, params);
+        // Filter by regency (Kabupaten/Kota) if provided
+        // We make this STRICT on mp.city to avoid showing products from other regencies
+        if (regency && regency.trim() && regency.toLowerCase() !== 'undefined') {
+            const cleanRegency = regency.trim();
+            query += ' AND (mp.city LIKE ? OR mp.full_address LIKE ?)'; 
+            params.push(`%${cleanRegency}%`, `%${cleanRegency}%`);
+        }
 
-        // Convert RowDataPacket to POJO to ensure spread works
+        const [rows] = await db.query(query, params);
         const productsPoJo = JSON.parse(JSON.stringify(rows));
 
         const latNum = lat ? parseFloat(lat) : null;
         const lngNum = lng ? parseFloat(lng) : null;
 
-        res.set('X-Debug-Version', '2.0-POJO-FIX');
-
         let productsWithDistance = productsPoJo.map(product => {
             let distance = null;
 
-            const pLat = parseFloat(product.latitude);
-            const pLng = parseFloat(product.longitude);
+            // Use the joined static merchant location
+            const pLat = parseFloat(product.merchant_lat);
+            const pLng = parseFloat(product.merchant_lng);
 
             if (latNum !== null && lngNum !== null && !isNaN(latNum) && !isNaN(lngNum) &&
                 !isNaN(pLat) && !isNaN(pLng)) {
@@ -49,28 +59,23 @@ exports.getProducts = async (req, res) => {
                 distance = Math.round(distance * 10) / 10;
             }
 
-            // EMERGENCY TEST: if distance is still null but coordinates exist, force a value
-            // if (distance === null && !isNaN(pLat)) distance = 0.1; 
-
             return {
                 ...product,
                 distance,
-                debug_marker: 'ACTIVE-V2'
+                debug_marker: 'V2-STRICT'
             };
         });
 
-        // Sort: If distance available, sort by distance, then by sold
-        if (latNum !== null && lngNum !== null && !isNaN(latNum) && !isNaN(lngNum)) {
-            productsWithDistance.sort((a, b) => {
-                if (a.distance === null && b.distance === null) return b.sold - a.sold;
-                if (a.distance === null) return 1;
-                if (b.distance === null) return -1;
-                return a.distance - b.distance || b.sold - a.sold;
-            });
-        } else {
-            productsWithDistance.sort((a, b) => b.sold - a.sold);
-        }
+        // Sort: Distance ASC, then Sold DESC
+        productsWithDistance.sort((a, b) => {
+            const distA = (a.distance === null || a.distance === undefined) ? 1000000 : a.distance;
+            const distB = (b.distance === null || b.distance === undefined) ? 1000000 : b.distance;
 
+            if (distA !== distB) return distA - distB;
+            return b.sold - a.sold;
+        });
+
+        console.log(`[Marketplace] Returning ${productsWithDistance.length} products`);
         res.json(productsWithDistance);
     } catch (error) {
         console.error('[Marketplace Error]', error);
