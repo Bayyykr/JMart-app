@@ -22,13 +22,16 @@ const checkMerchant = (req, res, next) => {
     next();
 };
 
-router.use(authMiddleware, checkMerchant);
-
-router.post('/onboard', upload.fields([
+// Onboarding/Status are accessible to any auth user
+router.post('/onboard', authMiddleware, upload.fields([
     { name: 'ktp_file', maxCount: 1 },
     { name: 'selfie_file', maxCount: 1 }
 ]), merchantController.submitOnboarding);
-router.get('/status', merchantController.getStatus);
+
+router.get('/status', authMiddleware, merchantController.getStatus);
+
+// All following routes require 'marketplace' role
+router.use(authMiddleware, checkMerchant);
 router.get('/profile', merchantController.getProfile);
 router.put('/profile', upload.single('store_image'), merchantController.updateProfile);
 router.get('/stats', merchantController.getStats);

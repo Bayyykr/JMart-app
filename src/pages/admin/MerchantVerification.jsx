@@ -7,6 +7,7 @@ const MerchantVerification = () => {
     const [merchants, setMerchants] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedMerchant, setSelectedMerchant] = useState(null);
 
     const fetchMerchants = async () => {
         setLoading(true);
@@ -40,14 +41,16 @@ const MerchantVerification = () => {
         }
     };
 
-    const filteredMerchants = merchants.filter(merchant => 
-        merchant.store_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        merchant.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        merchant.ktp_number?.includes(searchQuery)
+    const pendingMerchants = merchants.filter(merchant => 
+        merchant.status === 'pending' && (
+            merchant.store_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            merchant.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            merchant.ktp_number?.includes(searchQuery)
+        )
     );
 
     return (
-        <div className="space-y-10">
+        <div className="space-y-8">
             <div className="flex flex-col xl:flex-row gap-6 justify-between items-start xl:items-center">
                 <div>
                     <h2 className="text-2xl font-black text-brand-dark-blue mb-1">Verifikasi Merchant</h2>
@@ -66,6 +69,15 @@ const MerchantVerification = () => {
                 </div>
             </div>
 
+            {/* Alert Banner Parity with Driver */}
+            <div className="bg-brand-orange/5 border border-brand-orange/20 p-6 rounded-3xl flex items-center gap-4">
+                <Info className="text-brand-orange" size={24} />
+                <div>
+                    <h3 className="text-sm font-black text-brand-dark-blue uppercase tracking-widest">Konfirmasi Keamanan</h3>
+                    <p className="text-xs text-gray-500 font-bold mt-1">Harap periksa kecocokan foto identitas dan kesesuaian toko sebelum verifikasi.</p>
+                </div>
+            </div>
+
             <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
                 <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left">
@@ -73,7 +85,7 @@ const MerchantVerification = () => {
                             <tr>
                                 <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Informasi Pemilik</th>
                                 <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Detail Bisnis</th>
-                                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Dokumen & Verifikasi</th>
+                                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Dokumen</th>
                                 <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Keputusan</th>
                             </tr>
                         </thead>
@@ -92,8 +104,8 @@ const MerchantVerification = () => {
                                         </td>
                                     </tr>
                                 ))
-                            ) : filteredMerchants.length > 0 ? (
-                                filteredMerchants.map((merchant) => (
+                            ) : pendingMerchants.length > 0 ? (
+                                pendingMerchants.map((merchant) => (
                                     <tr key={merchant.id} className="hover:bg-gray-50/30 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-5">
@@ -119,68 +131,32 @@ const MerchantVerification = () => {
                                                         <p className="text-sm font-black text-brand-dark-blue">{merchant.store_name}</p>
                                                         <div className="flex items-start gap-1.5 text-[11px] text-gray-400 font-bold mt-1 leading-relaxed">
                                                             <MapPin size={12} className="mt-0.5 shrink-0 text-gray-300" />
-                                                            <span className="max-w-[180px]">{merchant.store_address}</span>
+                                                            <span className="max-w-[180px]">{merchant.village}, {merchant.district}, {merchant.city}</span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                {merchant.product_description && (
-                                                    <div className="p-3 bg-gray-50/50 rounded-xl border border-gray-100 max-w-[250px] group-hover:bg-white transition-colors">
-                                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                                                            <Info size={10} /> Deskripsi Produk
-                                                        </p>
-                                                        <p className="text-[11px] font-medium text-gray-600 line-clamp-2 leading-relaxed">
-                                                            {merchant.product_description}
-                                                        </p>
-                                                    </div>
-                                                )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex flex-col gap-4">
-                                                <div className="flex items-center gap-3 bg-gray-50/50 px-4 py-2 rounded-xl border border-gray-100 w-fit">
-                                                    <CreditCard size={14} className="text-gray-400" />
-                                                    <span className="font-mono text-xs font-black text-brand-dark-blue tracking-wider">{merchant.ktp_number}</span>
-                                                </div>
-                                                <div className="flex items-center gap-3">
-                                                    {merchant.ktp_image_url && (
-                                                        <button className="flex items-center gap-2 px-4 py-2 bg-white text-brand-green border border-brand-green/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-green hover:text-white transition-all shadow-sm">
-                                                            <Eye size={12} /> Berkas KTP
-                                                        </button>
-                                                    )}
-                                                    {merchant.selfie_image_url && (
-                                                        <button className="flex items-center gap-2 px-4 py-2 bg-white text-brand-orange border border-brand-orange/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-orange hover:text-white transition-all shadow-sm">
-                                                            <Eye size={12} /> Foto Toko
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </div>
+                                            <button 
+                                                onClick={() => setSelectedMerchant(merchant)}
+                                                className="flex items-center gap-2 px-3 py-2 bg-gray-50 text-brand-dark-blue rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-colors"
+                                            >
+                                                <Eye size={14} /> Lihat Berkas
+                                            </button>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center justify-center gap-4">
-                                                {merchant.status === 'pending' ? (
-                                                    <>
-                                                        <button 
-                                                            onClick={() => handleUpdateStatus(merchant.user_id, 'verified')}
-                                                            className="w-12 h-12 bg-green-50 text-green-500 hover:bg-green-500 hover:text-white rounded-[1.2rem] transition-all shadow-sm shadow-green-100 flex items-center justify-center group/btn active:scale-90"
-                                                            title="Approve Merchant"
-                                                        >
-                                                            <CheckCircle size={22} className="group-hover/btn:scale-110 transition-transform" />
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => handleUpdateStatus(merchant.user_id, 'rejected')}
-                                                            className="w-12 h-12 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-[1.2rem] transition-all shadow-sm shadow-red-100 flex items-center justify-center group/btn active:scale-90"
-                                                            title="Reject Merchant"
-                                                        >
-                                                            <XCircle size={22} className="group-hover/btn:scale-110 transition-transform" />
-                                                        </button>
-                                                    </>
-                                                ) : (
-                                                    <div className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${
-                                                        merchant.status === 'verified' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'
-                                                    }`}>
-                                                        {merchant.status}
-                                                    </div>
-                                                )}
+                                                <button 
+                                                    onClick={() => handleUpdateStatus(merchant.user_id, 'verified')}
+                                                    className="p-2 text-green-500 hover:bg-green-50 rounded-lg transition-all" title="Approve">
+                                                    <CheckCircle size={20} />
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleUpdateStatus(merchant.user_id, 'rejected')}
+                                                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Reject">
+                                                    <XCircle size={20} />
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -199,6 +175,60 @@ const MerchantVerification = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Modal for viewing merchant documents */}
+            {selectedMerchant && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto w-full min-h-screen">
+                    <div className="bg-white rounded-3xl p-6 w-full max-w-4xl shadow-xl border border-gray-100 my-8 shadow-[0_40px_80px_rgba(0,0,0,0.3)]">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="font-bold text-xl text-brand-dark-blue">Berkas Merchant: {selectedMerchant.store_name}</h3>
+                            <button onClick={() => setSelectedMerchant(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                                <XCircle size={28} />
+                            </button>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Foto KTP Pemilik</p>
+                                <div className="bg-gray-50 rounded-2xl border border-gray-100 aspect-video flex flex-col items-center justify-center overflow-hidden">
+                                    {selectedMerchant.ktp_image_url ? (
+                                        <img src={`${selectedMerchant.ktp_image_url}`} alt="KTP" className="w-full h-full object-contain" />
+                                    ) : (
+                                        <p className="text-xs text-gray-400 font-bold">Berkas Belum Diunggah</p>
+                                    )}
+                                </div>
+                                <div className="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">NIK Terdaftar</p>
+                                    <p className="font-mono font-bold text-brand-dark-blue">{selectedMerchant.ktp_number}</p>
+                                </div>
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Foto Toko / Produk</p>
+                                <div className="bg-gray-50 rounded-2xl border border-gray-100 aspect-video flex flex-col items-center justify-center overflow-hidden">
+                                    {selectedMerchant.selfie_image_url ? (
+                                        <img src={`${selectedMerchant.selfie_image_url}`} alt="Store" className="w-full h-full object-contain" />
+                                    ) : (
+                                        <p className="text-xs text-gray-400 font-bold">Berkas Belum Diunggah</p>
+                                    )}
+                                </div>
+                                <div className="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Deskripsi Produk</p>
+                                    <p className="text-xs text-gray-600 font-medium leading-relaxed">{selectedMerchant.product_description || 'Tidak ada deskripsi'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 flex justify-end gap-4 border-t border-gray-100 pt-6">
+                            <button 
+                                onClick={() => setSelectedMerchant(null)}
+                                className="px-8 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-all text-sm"
+                            >
+                                Tutup
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

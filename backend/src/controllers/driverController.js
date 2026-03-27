@@ -21,6 +21,8 @@ exports.submitOnboarding = async (req, res) => {
         const userId = req.user.id;
         const { ktp_number, vehicle_type, vehicle_plate, vehicle_model } = req.body;
 
+        console.log('[BACKEND] Submit Onboarding Request:', { userId, body: req.body });
+
         // Handle uploaded files from multer
         const ktp_image_url = req.files && req.files['ktp_file'] ? `/uploads/${req.files['ktp_file'][0].filename}` : null;
         const selfie_image_url = req.files && req.files['selfie_file'] ? `/uploads/${req.files['selfie_file'][0].filename}` : null;
@@ -31,11 +33,13 @@ exports.submitOnboarding = async (req, res) => {
         const [existing] = await db.execute('SELECT id FROM driver_profiles WHERE user_id = ?', [userId]);
 
         if (existing.length > 0) {
+            console.log('[BACKEND] Updating existing driver profile for user:', userId);
             await db.execute(
                 'UPDATE driver_profiles SET ktp_number = ?, ktp_image_url = ?, selfie_image_url = ?, vehicle_type = ?, vehicle_plate = ?, vehicle_model = ?, status = "pending" WHERE user_id = ?',
                 [ktp_number, ktp_image_url, selfie_image_url, normalizedVehicleType, vehicle_plate, vehicle_model, userId]
             );
         } else {
+            console.log('[BACKEND] Inserting new driver profile for user:', userId);
             await db.execute(
                 'INSERT INTO driver_profiles (user_id, ktp_number, ktp_image_url, selfie_image_url, vehicle_type, vehicle_plate, vehicle_model, status) VALUES (?, ?, ?, ?, ?, ?, ?, "pending")',
                 [userId, ktp_number, ktp_image_url, selfie_image_url, normalizedVehicleType, vehicle_plate, vehicle_model]
@@ -44,8 +48,13 @@ exports.submitOnboarding = async (req, res) => {
 
         res.status(200).json({ message: 'Onboarding data submitted successfully' });
     } catch (error) {
-        console.error('Submit Onboarding Error:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
+        console.error('[BACKEND] Submit Onboarding Error Details:', {
+            message: error.message,
+            stack: error.stack,
+            body: req.body,
+            files: req.files ? Object.keys(req.files) : 'no files'
+        });
+        res.status(500).json({ message: 'Server error during onboarding', error: error.message });
     }
 };
 
