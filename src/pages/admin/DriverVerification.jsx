@@ -172,8 +172,8 @@ const DriverVerification = () => {
 
             {/* Modal for viewing driver documents */}
             {selectedDriver && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto w-full min-h-screen">
-                    <div className="bg-white rounded-3xl p-8 w-full max-w-4xl shadow-xl border border-gray-100 my-8 shadow-[0_40px_80px_rgba(0,0,0,0.3)]">
+                <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto w-full min-h-screen pt-8 md:pt-16">
+                    <div className="bg-white rounded-3xl p-8 w-full max-w-4xl shadow-xl border border-gray-100 shadow-[0_40px_80px_rgba(0,0,0,0.3)]">
                         <div className="flex justify-between items-center mb-8">
                             <div>
                                 <h3 className="font-black text-2xl text-brand-dark-blue leading-none">Berkas Driver</h3>

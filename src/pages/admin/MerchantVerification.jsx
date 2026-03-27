@@ -32,7 +32,7 @@ const MerchantVerification = () => {
                 userId: merchantId,
                 status: newStatus
             });
-            
+
             toast.success(`Merchant berhasil ${newStatus === 'verified' ? 'disetujui' : 'ditolak'}`);
             fetchMerchants();
         } catch (error) {
@@ -41,7 +41,7 @@ const MerchantVerification = () => {
         }
     };
 
-    const pendingMerchants = merchants.filter(merchant => 
+    const pendingMerchants = merchants.filter(merchant =>
         merchant.status === 'pending' && (
             merchant.store_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             merchant.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -59,9 +59,9 @@ const MerchantVerification = () => {
 
                 <div className="relative w-full xl:max-w-md group">
                     <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-green transition-colors" />
-                    <input 
-                        type="text" 
-                        placeholder="Cari toko, pemilik, atau NIK..." 
+                    <input
+                        type="text"
+                        placeholder="Cari toko, pemilik, atau NIK..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-14 pr-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl text-sm font-bold text-brand-dark-blue focus:ring-0 focus:border-brand-green/20 focus:bg-white transition-all outline-none placeholder:text-gray-300 shadow-sm"
@@ -138,7 +138,7 @@ const MerchantVerification = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <button 
+                                            <button
                                                 onClick={() => setSelectedMerchant(merchant)}
                                                 className="flex items-center gap-2 px-3 py-2 bg-gray-50 text-brand-dark-blue rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-colors"
                                             >
@@ -147,12 +147,12 @@ const MerchantVerification = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center justify-center gap-4">
-                                                <button 
+                                                <button
                                                     onClick={() => handleUpdateStatus(merchant.user_id, 'verified')}
                                                     className="p-2 text-green-500 hover:bg-green-50 rounded-lg transition-all" title="Approve">
                                                     <CheckCircle size={20} />
                                                 </button>
-                                                <button 
+                                                <button
                                                     onClick={() => handleUpdateStatus(merchant.user_id, 'rejected')}
                                                     className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Reject">
                                                     <XCircle size={20} />
@@ -178,15 +178,15 @@ const MerchantVerification = () => {
 
             {/* Modal for viewing merchant documents */}
             {selectedMerchant && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto w-full min-h-screen">
-                    <div className="bg-white rounded-3xl p-6 w-full max-w-4xl shadow-xl border border-gray-100 my-8 shadow-[0_40px_80px_rgba(0,0,0,0.3)]">
+                <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto w-full min-h-screen pt-8 md:pt-16">
+                    <div className="bg-white rounded-3xl p-6 w-full max-w-4xl shadow-xl border border-gray-100 shadow-[0_40px_80px_rgba(0,0,0,0.3)]">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="font-bold text-xl text-brand-dark-blue">Berkas Merchant: {selectedMerchant.store_name}</h3>
                             <button onClick={() => setSelectedMerchant(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
                                 <XCircle size={28} />
                             </button>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Foto KTP Pemilik</p>
@@ -219,7 +219,7 @@ const MerchantVerification = () => {
                         </div>
 
                         <div className="mt-8 flex justify-end gap-4 border-t border-gray-100 pt-6">
-                            <button 
+                            <button
                                 onClick={() => setSelectedMerchant(null)}
                                 className="px-8 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-all text-sm"
                             >
