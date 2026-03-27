@@ -42,7 +42,7 @@ router.get('/me', authMiddleware, async (req, res) => {
     try {
         const user = await userRepository.findById(req.user.id);
         if (!user) return res.status(404).json({ message: 'User not found' });
-        
+
         // Strictly check for active status (1). Anything else (0, null, etc) is considered deactivated.
         if (user.is_active != 1) {
             console.log(`DEACTIVATED profile check for user ID ${req.user.id} (status: ${user.is_active})`);
@@ -60,15 +60,15 @@ router.put('/profile', authMiddleware, async (req, res) => {
     const db = require('../config/db');
     try {
         const { name, phone, birthdate, address } = req.body;
-        
+
         await db.execute(
             'UPDATE users SET name = ?, phone = ?, birthdate = ?, address = ? WHERE id = ?',
             [name || null, phone || null, birthdate || null, address || null, req.user.id]
         );
-        
+
         const userRepository = require('../repositories/UserRepository');
         const updatedUser = await userRepository.findById(req.user.id);
-        
+
         res.json({ message: 'Profil berhasil diperbarui', user: updatedUser });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -84,14 +84,14 @@ router.post('/profile-image', authMiddleware, upload.single('image'), async (req
         if (!req.file) {
             return res.status(400).json({ message: 'No image uploaded' });
         }
-        
+
         const imageUrl = `/uploads/${req.file.filename}`;
-        
+
         await db.execute('UPDATE users SET profile_image_url = ? WHERE id = ?', [imageUrl, req.user.id]);
-        
+
         const userRepository = require('../repositories/UserRepository');
         const updatedUser = await userRepository.findById(req.user.id);
-        
+
         res.json({ message: 'Foto profil berhasil diperbarui', user: updatedUser });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });

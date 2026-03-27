@@ -54,7 +54,7 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // Validation
         if (!form.email.toLowerCase().endsWith('@gmail.com')) {
             setError('Hanya alamat email @gmail.com yang diperbolehkan.');
@@ -72,7 +72,7 @@ const Register = () => {
             setError('Password dan konfirmasi tidak cocok.');
             return;
         }
-        
+
         setLoading(true);
         try {
             await api.post('/auth/register', { name: form.name, email: form.email, password: form.password, role });
@@ -195,7 +195,7 @@ const Register = () => {
                                                 className={`flex flex-col items-center gap-1 py-1.5 px-2 rounded-xl border-2 transition-all duration-200 ${role === id
                                                     ? activeClass + ' shadow-md scale-[1.02]'
                                                     : 'border-gray-200 bg-gray-50 text-gray-500 hover:border-gray-300 hover:bg-gray-100'
-                                                }`}
+                                                    }`}
                                             >
                                                 <Icon size={18} />
                                                 <span className="text-[10px] font-black uppercase tracking-wide leading-none">{label}</span>
@@ -283,7 +283,7 @@ const Register = () => {
                                     className={`w-full py-3 rounded-xl font-black text-[15px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all duration-200 mt-1 ${loading || success
                                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                         : 'bg-brand-orange text-white hover:bg-brand-orange/90 shadow-lg shadow-brand-orange/25'
-                                    }`}
+                                        }`}
                                 >
                                     {loading
                                         ? <div className="w-5 h-5 border-[2.5px] border-gray-300 border-b-transparent rounded-full animate-spin" />
