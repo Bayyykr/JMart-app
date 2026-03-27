@@ -79,24 +79,43 @@ const DriverOnboarding = () => {
         }
 
         setSubmitting(true);
+        setMessage('');
+
         try {
             const submitData = new FormData();
-            const full_plate = `${formData.plate_prefix.toUpperCase()} ${formData.plate_number} ${formData.plate_suffix.toUpperCase()}`.trim();
-            submitData.append('ktp_number', formData.ktp_number);
-            submitData.append('vehicle_type', formData.vehicle_type);
-            submitData.append('vehicle_model', formData.vehicle_model); // Added
+            
+            // Safe string construction to prevent crashes
+            const prefix = (formData.plate_prefix || '').toUpperCase();
+            const number = (formData.plate_number || '');
+            const suffix = (formData.plate_suffix || '').toUpperCase();
+            const full_plate = `${prefix} ${number} ${suffix}`.trim();
+            
+            submitData.append('ktp_number', formData.ktp_number || '');
+            submitData.append('vehicle_type', formData.vehicle_type || 'Motor');
+            submitData.append('vehicle_model', formData.vehicle_model || '');
             submitData.append('vehicle_plate', full_plate);
-            submitData.append('ktp_file', files.ktp_file);
-            submitData.append('selfie_file', files.selfie_file);
+            
+            if (files.ktp_file) submitData.append('ktp_file', files.ktp_file);
+            if (files.selfie_file) submitData.append('selfie_file', files.selfie_file);
 
-            await api.post('/driver/onboard', submitData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+            console.log('[DriverOnboarding] Sending data...', {
+                ktp_number: formData.ktp_number,
+                vehicle_plate: full_plate
             });
 
+            const response = await api.post('/driver/onboard', submitData);
+
+            console.log('[DriverOnboarding] Response:', response.data);
             setMessage('Data berhasil dikirim! Mohon tunggu verifikasi admin.');
             setStatus('pending');
         } catch (err) {
-            setMessage('Gagal mengirim data. Silakan coba lagi.');
+            console.error('[DriverOnboarding] Submission Error:', {
+                message: err.message,
+                response: err.response?.data,
+                status: err.response?.status
+            });
+            const errorMsg = err.response?.data?.message || 'Gagal mengirim data. Silakan coba lagi.';
+            setMessage(errorMsg);
         } finally {
             setSubmitting(false);
         }

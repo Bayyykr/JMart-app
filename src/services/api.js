@@ -3,9 +3,6 @@ import { getCookie } from '../context/authContext';
 
 const api = axios.create({
     baseURL: '/api',
-    headers: {
-        'Content-Type': 'application/json',
-    },
 });
 
 // Interceptor for JWT
