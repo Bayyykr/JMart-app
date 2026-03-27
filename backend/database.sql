@@ -8,17 +8,18 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     role ENUM('user', 'driver', 'admin', 'marketplace') DEFAULT 'user',
     profile_image_url VARCHAR(255) DEFAULT NULL,
+    is_active TINYINT DEFAULT 1,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Mock Data Users
-INSERT IGNORE INTO users (name, email, password, role) VALUES 
-('User Satu', 'user@jmart.com', 'password123', 'user'),
-('Driver Satu', 'driver@jmart.com', 'password123', 'driver'),
-('Admin Satu', 'admin@jmart.com', 'password123', 'admin'),
-('Toko Berkah', 'berkah@jmart.com', 'password123', 'marketplace'),
-('Lisa', 'lisa@jmart.com', 'password123', 'user'),
-('Agus Mantap', 'agus@jmart.com', 'password123', 'driver');
+INSERT IGNORE INTO users (name, email, password, role, is_active) VALUES 
+('User Satu', 'user@jmart.com', 'password123', 'user', 1),
+('Driver Satu', 'driver@jmart.com', 'password123', 'driver', 1),
+('Admin Satu', 'admin@jmart.com', 'password123', 'admin', 1),
+('Toko Berkah', 'berkah@jmart.com', 'password123', 'marketplace', 1),
+('Lisa', 'lisa@jmart.com', 'password123', 'user', 1),
+('Agus Mantap', 'agus@jmart.com', 'password123', 'driver', 1);
 
 -- Tabel Products (Marketplace)
 CREATE TABLE IF NOT EXISTS products (

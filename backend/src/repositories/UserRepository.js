@@ -9,7 +9,7 @@ class UserRepository {
     async save(user) {
         const { name, email, password, role } = user;
         const [result] = await db.execute(
-            'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
+            'INSERT INTO users (name, email, password, role, is_active) VALUES (?, ?, ?, ?, 1)',
             [name, email, password, role]
         );
         return result.insertId;
