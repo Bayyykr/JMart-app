@@ -122,6 +122,17 @@ CREATE TABLE IF NOT EXISTS drivers_info (
     initial VARCHAR(5),
     rating FLOAT DEFAULT 0,
     trips INT DEFAULT 0,
+    vehicle VARCHAR(255),
+    price INT,
+    status VARCHAR(50),
+    color VARCHAR(50),
+    area VARCHAR(255),
+    latitude DOUBLE,
+    longitude DOUBLE
+);
+
+-- Mock Data Drivers
+INSERT IGNORE INTO drivers_info (id, name, initial, rating, trips, vehicle, price, status, color, area, latitude, longitude) VALUES
 (4, 'Dedi Kurniawan', 'D', 4.9, 450, 'Yamaha Aerox 155 - P 3456 GH', 20000, 'Online', 'bg-[#1e6f85]', 'Ajung, Jember', -8.2010, 113.6820),
 (5, 'Rina Wati', 'R', 4.6, 98, 'Honda Scoopy - P 7890 IJ', 13000, 'Online', 'bg-brand-green', 'Ambulu, Jember', -8.3470, 113.6040),
 (6, 'Fajar Hidayat', 'F', 4.8, 275, 'Yamaha Mio - P 2345 KL', 14000, 'Online', 'bg-[#1e6f85]', 'Arjasa, Jember', -8.1180, 113.7860),
