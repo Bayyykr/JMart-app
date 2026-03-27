@@ -5,7 +5,7 @@
   "type": "module",
   "workspaces": [
     "backend"
-  ],
+  ], 
   "scripts": {
     "dev": "vite",
     "build": "vite build",
