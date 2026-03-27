@@ -15,6 +15,7 @@ const driverRoutes = require('./routes/driverRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const merchantRoutes = require('./routes/merchantRoutes');
+const migrationRoutes = require('./routes/migrationRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
@@ -22,6 +23,7 @@ app.use('/api/driver', driverRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/merchant', merchantRoutes);
+app.use('/api/migrate', migrationRoutes);
 
 app.get('/api', (req, res) => {
     res.json({ message: "JMart API is Live", version: "1.0.0" });

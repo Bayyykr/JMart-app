@@ -1,19 +1,19 @@
 const mysql = require('mysql2/promise');
 const path = require('path');
 
-// In Vercel, env vars are injected directly. For local dev, we load .env.
-if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config({ path: path.join(__dirname, '../../.env') });
-}
+// Always try to load .env for local dev. In Railway, env vars are injected natively (safe to call).
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT || '3306'),
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
 });
 
 module.exports = pool;
