@@ -29,4 +29,17 @@ app.get('/api', (req, res) => {
     res.json({ message: "JMart API is Live", version: "1.0.0" });
 });
 
+// Serve frontend static files from the root dist folder
+app.use(express.static(path.join(__dirname, '../../dist')));
+
+// Handle React Router SPA routing (catch-all)
+app.get('*', (req, res) => {
+    // If it's an API request that wasn't caught, return 404
+    if (req.path.startsWith('/api')) {
+        return res.status(404).json({ message: "API Endpoint Not Found" });
+    }
+    // Otherwise serve index.html
+    res.sendFile(path.join(__dirname, '../../dist/index.html'));
+});
+
 module.exports = app;
