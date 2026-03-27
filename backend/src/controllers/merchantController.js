@@ -251,8 +251,8 @@ exports.addProduct = async (req, res) => {
         const longitude = profile.length > 0 ? profile[0].longitude : null;
 
         const [result] = await db.execute(
-            'INSERT INTO products (name, seller, seller_id, category, price, description, image_url, condition_status, latitude, longitude, open_time, close_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, sellerName, userId, category, price, description || null, image_url, condition_status || null, latitude, longitude, open_time || null, close_time || null]
+            'INSERT INTO products (name, seller, seller_id, category, price, description, image_url, condition_status, latitude, longitude, open_time, close_time, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [name, sellerName, userId, category, price, description || null, image_url, condition_status || null, latitude, longitude, open_time || null, close_time || null, 1]
         );
 
         res.status(201).json({ message: 'Product added successfully', productId: result.insertId });
@@ -268,8 +268,8 @@ exports.updateProduct = async (req, res) => {
         const { name, category, price, description, condition_status, open_time, close_time } = req.body;
         const image_url = req.file ? `/uploads/${req.file.filename}` : null;
 
-        let query = 'UPDATE products SET name = ?, category = ?, price = ?, description = ?, condition_status = ?, open_time = ?, close_time = ?';
-        let params = [name, category, price, description || null, condition_status || null, open_time || null, close_time || null];
+        let query = 'UPDATE products SET name = ?, category = ?, price = ?, description = ?, condition_status = ?, open_time = ?, close_time = ?, is_active = ?';
+        let params = [name, category, price, description || null, condition_status || null, open_time || null, close_time || null, req.body.is_active !== undefined ? req.body.is_active : 1];
 
         if (image_url) {
             query += ', image_url = ?';
@@ -303,6 +303,27 @@ exports.deleteProduct = async (req, res) => {
         }
 
         res.json({ message: 'Product deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+exports.toggleProductStatus = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const productId = req.params.id;
+        const { is_active } = req.body;
+
+        const [result] = await db.execute(
+            'UPDATE products SET is_active = ? WHERE id = ? AND seller_id = ?',
+            [is_active ? 1 : 0, productId, userId]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Product not found or unauthorized' });
+        }
+
+        res.json({ message: `Product ${is_active ? 'activated' : 'deactivated'} successfully`, success: true });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }

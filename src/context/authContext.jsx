@@ -91,6 +91,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = (userData, token) => {
         setUser(userData);
+        setShowDeactivated(false);
         localStorage.setItem('user', JSON.stringify(userData));
         if (token) setCookie('token', token, 3); // Persistent for 3 days
     };

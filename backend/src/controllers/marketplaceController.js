@@ -21,8 +21,8 @@ exports.getProducts = async (req, res) => {
         let query = `
             SELECT p.*, mp.latitude as merchant_lat, mp.longitude as merchant_lng, mp.city
             FROM products p
-            LEFT JOIN merchant_profiles mp ON p.seller_id = mp.user_id
-            WHERE 1=1
+            JOIN merchant_profiles mp ON p.seller_id = mp.user_id
+            WHERE p.is_active = 1 AND mp.status = 'verified'
         `;
         const params = [];
 

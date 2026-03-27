@@ -36,6 +36,7 @@ router.get('/products', merchantController.getProducts);
 router.post('/products', upload.single('image'), merchantController.addProduct);
 router.put('/products/:id', upload.single('image'), merchantController.updateProduct);
 router.delete('/products/:id', merchantController.deleteProduct);
+router.put('/products/:id/status', merchantController.toggleProductStatus);
 
 router.get('/orders', merchantController.getOrders);
 router.put('/orders/:id/status', merchantController.updateOrderStatus);

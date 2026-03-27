@@ -141,16 +141,15 @@ const ProductManagement = () => {
         }
     };
 
-    const confirmDelete = async () => {
-        if (!productToDelete) return;
-        const toastId = toast.loading('Menghapus produk...');
+    const handleToggleStatus = async (product) => {
+        const newStatus = !product.is_active;
+        const toastId = toast.loading(newStatus ? 'Mengaktifkan...' : 'Menonaktifkan...');
         try {
-            await api.delete(`/merchant/products/${productToDelete.id}`);
-            setProducts(prev => prev.filter(p => p.id !== productToDelete.id));
-            setProductToDelete(null);
-            toast.success(`"${productToDelete.name}" berhasil dihapus.`, { id: toastId });
+            await api.put(`/merchant/products/${product.id}/status`, { is_active: newStatus });
+            setProducts(prev => prev.map(p => p.id === product.id ? { ...p, is_active: newStatus } : p));
+            toast.success(`Produk ${newStatus ? 'diaktifkan' : 'dinonaktifkan'}`, { id: toastId });
         } catch (error) {
-            toast.error('Gagal menghapus produk.', { id: toastId });
+            toast.error('Gagal mengubah status produk', { id: toastId });
         }
     };
 
@@ -188,29 +187,45 @@ const ProductManagement = () => {
                         <div className="flex items-center gap-4">
                             <div className="w-16 h-16 shrink-0 bg-brand-cream rounded-2xl flex items-center justify-center overflow-hidden">
                                 {product.image_url ? (
-                                    <img src={`${product.image_url}`} alt={product.name} className="w-full h-full object-cover" />
+                                    <img src={`${product.image_url}`} alt={product.name} className={`w-full h-full object-cover ${!product.is_active ? 'grayscale opacity-50' : ''}`} />
                                 ) : (
-                                    <Package className="w-8 h-8 text-brand-orange" />
+                                    <Package className={`w-8 h-8 ${!product.is_active ? 'text-gray-300' : 'text-brand-orange'}`} />
                                 )}
                             </div>
                             <div className="overflow-hidden">
-                                <h3 className="font-black text-brand-dark-blue truncate">{product.name}</h3>
+                                <h3 className={`font-black truncate ${!product.is_active ? 'text-gray-400' : 'text-brand-dark-blue'}`}>{product.name}</h3>
                                 <p className="text-[10px] font-black text-brand-orange uppercase tracking-widest mt-0.5">{product.category}</p>
-                                <p className="text-sm font-bold text-brand-green mt-1">Rp {(product.price || 0).toLocaleString('id-ID')}</p>
+                                <p className={`text-sm font-bold mt-1 ${!product.is_active ? 'text-gray-300' : 'text-brand-green'}`}>Rp {(product.price || 0).toLocaleString('id-ID')}</p>
                             </div>
                         </div>
+                        {!product.is_active && (
+                            <div className="absolute top-4 right-4 animate-in fade-in zoom-in duration-300">
+                                <span className="bg-red-500 text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-tighter">Nonaktif</span>
+                            </div>
+                        )}
                         <div className="mt-6 flex items-center gap-2">
                             <button
-                                onClick={() => handleOpenModal(product)}
-                                className="flex-1 flex items-center justify-center gap-2 py-2 bg-gray-50 text-gray-500 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-brand-dark-blue hover:text-white transition-all"
+                                onClick={() => handleToggleStatus(product)}
+                                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${
+                                    product.is_active 
+                                    ? 'bg-red-50 text-red-500 hover:bg-red-500 hover:text-white' 
+                                    : 'bg-green-50 text-green-600 hover:bg-green-600 hover:text-white'
+                                }`}
+                                title={product.is_active ? 'Nonaktifkan Produk' : 'Aktifkan Produk'}
                             >
-                                <Edit2 size={14} /> Edit
+                                {product.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                            </button>
+                            <button
+                                onClick={() => handleOpenModal(product)}
+                                className="w-10 flex items-center justify-center py-2 bg-gray-50 text-gray-400 rounded-xl hover:bg-brand-dark-blue hover:text-white transition-all shadow-sm"
+                            >
+                                <Edit2 size={14} />
                             </button>
                             <button
                                 onClick={() => setProductToDelete(product)}
-                                className="w-10 flex items-center justify-center py-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                                className="w-10 flex items-center justify-center py-2 bg-red-50 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all"
                             >
-                                <Trash2 size={16} />
+                                <Trash2 size={14} />
                             </button>
                         </div>
                     </div>

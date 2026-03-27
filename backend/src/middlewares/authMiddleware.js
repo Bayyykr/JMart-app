@@ -13,12 +13,15 @@ exports.authMiddleware = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
 
-        // Strict DB check for every protected request to enforce "immediate" deactivation
+        // Strict DB check for every protected request to enforce "immediate" deactivation/role change
         const user = await userRepository.findById(decoded.id);
         if (!user || user.is_active != 1) {
             console.log(`[AUTH] Blocking deactivated user ${decoded.id} (status: ${user?.is_active})`);
             return res.status(403).json({ message: 'DEACTIVATED' });
         }
+
+        // Sync role from DB in case it changed since token was issued
+        req.user.role = user.role;
 
         next();
     } catch (err) {
