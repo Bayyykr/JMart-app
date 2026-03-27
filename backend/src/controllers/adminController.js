@@ -40,7 +40,7 @@ exports.updateDriverStatus = async (req, res) => {
 exports.getDrivers = async (req, res) => {
     try {
         const [rows] = await db.query(`
-            SELECT d.id, d.user_id, u.name, u.email, d.ktp_number, d.vehicle_type, d.vehicle_plate, d.status, d.createdAt,
+            SELECT d.*, u.name, u.email,
                    d.ktp_image_url as identity_url, d.selfie_image_url as selfie_url
             FROM driver_profiles d
             JOIN users u ON d.user_id = u.id
@@ -56,7 +56,7 @@ exports.getDrivers = async (req, res) => {
 exports.getMerchants = async (req, res) => {
     try {
         const [rows] = await db.query(`
-            SELECT m.id, m.user_id, u.name, u.email, m.store_name, m.store_address, m.ktp_number, m.status, m.createdAt
+            SELECT m.*, u.name, u.email
             FROM merchant_profiles m
             JOIN users u ON m.user_id = u.id
             ORDER BY m.createdAt DESC
