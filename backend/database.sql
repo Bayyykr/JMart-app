@@ -11,6 +11,22 @@ SET time_zone = "+00:00";
 -- Database: `jmart_db`
 --
 
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS `broadcasts`;
+DROP TABLE IF EXISTS `broadcast_offers`;
+DROP TABLE IF EXISTS `broadcast_requests`;
+DROP TABLE IF EXISTS `driver_profiles`;
+DROP TABLE IF EXISTS `jastips`;
+DROP TABLE IF EXISTS `jastip_items`;
+DROP TABLE IF EXISTS `merchant_profiles`;
+DROP TABLE IF EXISTS `messages`;
+DROP TABLE IF EXISTS `orders`;
+DROP TABLE IF EXISTS `products`;
+DROP TABLE IF EXISTS `reports`;
+DROP TABLE IF EXISTS `room_chats`;
+DROP TABLE IF EXISTS `users`;
+SET FOREIGN_KEY_CHECKS = 1;
+
 -- --------------------------------------------------------
 
 --
