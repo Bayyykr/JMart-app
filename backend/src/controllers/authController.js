@@ -33,8 +33,8 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // Strictly check for active status (1). Anything else (0, null, etc) is considered deactivated.
-        if (user.is_active != 1) {
+        // Only block if explicitly deactivated (status 0). If status is 1, null, or undefined, remains active.
+        if (user.is_active === 0) {
             console.log(`DEACTIVATED login attempt: ${email} (status: ${user.is_active})`);
             return res.status(403).json({ message: 'DEACTIVATED' });
         }
